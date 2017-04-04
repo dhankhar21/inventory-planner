@@ -37,7 +37,6 @@ logging:
   appenders:
   - type: console
     threshold: INFO
-
 server:
   applicationConnectors:
   - type: http
@@ -60,12 +59,15 @@ server:
     - type: console
       threshold: INFO
 
-
 zuluConfiguration:
   url: http://10.47.1.8:31200
   viewPath: "/views"
   clientId: "retail.rp"
   maxBatchSize: 30
+
+sslClientConfiguration:
+  url: http://10.85.52.106
+  viewPath: "/supplier_selection"
 
 clientConfiguration:
   timeout: 80000ms
@@ -81,3 +83,8 @@ clientConfiguration:
   gzipEnabled: false
   gzipEnabledForRequests: false
   chunkedEncodingEnabled: false
+
+
+sslClientConfiguration:
+  url: http://10.85.52.106
+  viewPath: "/supplier_selection"
