@@ -146,7 +146,7 @@ public class TestHelper {
 
     public static Requirement getRequirement(String fsn, String wh, String state, boolean enabled,
                                              RequirementSnapshot snapshot, double quantity, String supplier,
-                                             int mrp, int app, String currency, int sla,
+                                             int mrp, double app, String currency, int sla,
                                              String comment, String procType) {
         Requirement requirement = new Requirement();
         requirement.setFsn(fsn);
@@ -247,7 +247,7 @@ public class TestHelper {
         firstItem.setIpcQuantityOverrideReason("test_ipc");
         firstItem.setCdoQuantityOverride(15);
         firstItem.setCdoOverrideReason("test_cdo_quantity");
-        firstItem.setCdoPriceOverride(100);
+        firstItem.setCdoPriceOverride(100.0);
         firstItem.setCdoPriceOverrideReason("test_cdo_price");
         firstItem.setCdoSupplierOverride("new_supplier");
         requirementDownloadLineItems.add(firstItem);
@@ -294,7 +294,7 @@ public class TestHelper {
         firstItem.setFsn("fsn");
         firstItem.setCdoQuantityOverride(20);
         firstItem.setCdoQuantityOverrideReason("test_cdo_quantity");
-        firstItem.setCdoPriceOverride(100);
+        firstItem.setCdoPriceOverride(100.0);
         firstItem.setCdoPriceOverrideReason("test_cdo_price");
         firstItem.setCdoSupplierOverride("new_supplier");
         firstItem.setCdoSupplierOverrideReason("test_cdo_supplier");
@@ -332,7 +332,7 @@ public class TestHelper {
         fifthItem.setFsn("fsn_2");
         fifthItem.setRequirementId((long) 5);
         fifthItem.setWarehouseName("dummy_warehouse_1");
-        fifthItem.setCdoPriceOverride(-1);
+        fifthItem.setCdoPriceOverride(-1.0);
         fifthItem.setCdoPriceOverrideReason("  ");
         requirementDownloadLineItems.add(fifthItem);
 

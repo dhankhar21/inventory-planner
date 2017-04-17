@@ -37,7 +37,7 @@ public class Requirement extends AbstractEntity {
 
     private Integer mrp;
 
-    private Integer app;
+    private Double app;
 
     //todo:cleanup
     @Column(name = "app_currency")

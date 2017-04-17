@@ -53,14 +53,14 @@ public class CDOReviewUploadCommandTest {
                 (Collectors.toMap(Requirement::getId, Function.identity()));
 
         Assert.assertEquals(20, (int)requirementMap.get((long)1).getQuantity());
-        Assert.assertEquals(100, (int)requirementMap.get((long)1).getApp());
+        Assert.assertEquals(100.0, (double)requirementMap.get((long)1).getApp());
         Assert.assertEquals("new_supplier", requirementMap.get((long)1).getSupplier());
         Assert.assertEquals(20, (int)requirementMap.get((long)1).getSla());
 
         Assert.assertEquals(100, (int)requirementMap.get((long)2).getQuantity());
         Assert.assertEquals(100, (int)requirementMap.get((long)3).getQuantity());
         Assert.assertEquals(4, (int)requirementMap.get((long)4).getSla());
-        Assert.assertEquals(9, (int)requirementMap.get((long)5).getApp());
+        Assert.assertEquals(9.0, (double)requirementMap.get((long)5).getApp());
 
         Assert.assertEquals("new Supplier", requirementMap.get((long)6).getSupplier());
         Assert.assertEquals(20, (int)requirementMap.get((long)6).getSla());

@@ -21,7 +21,7 @@ public class FdpRequirementEntityData {
     String forecast;
     double quantity;
     String supplier;
-    Integer app;
+    double app;
     Integer mrp;
     String currency;
     Date requiredByDate;

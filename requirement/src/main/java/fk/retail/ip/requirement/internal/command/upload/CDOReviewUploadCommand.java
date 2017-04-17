@@ -31,11 +31,11 @@ public class CDOReviewUploadCommand extends UploadCommand {
         String supplierOverrideComment = requirementDownloadLineItem.getCdoSupplierOverrideReason();
         Integer bdProposedQuantity = requirementDownloadLineItem.getCdoQuantityOverride();
         Integer bdProposedSla = requirementDownloadLineItem.getNewSla();
-        Integer bdProposedApp = requirementDownloadLineItem.getCdoPriceOverride();
+        Double bdProposedApp = requirementDownloadLineItem.getCdoPriceOverride();
         String bdProposedSupplier = requirementDownloadLineItem.getCdoSupplierOverride();
         String currentSupplier = requirementDownloadLineItem.getSupplier();
         Integer currentQuantity =  requirementDownloadLineItem.getQuantity();
-        Integer currentApp = requirementDownloadLineItem.getApp();
+        Double currentApp = requirementDownloadLineItem.getApp();
         Integer currentSla = requirementDownloadLineItem.getSla();
         String quantityOverrideComment = requirementDownloadLineItem.getCdoQuantityOverrideReason();
         String appOverrideComment = requirementDownloadLineItem.getCdoPriceOverrideReason();
@@ -91,7 +91,7 @@ public class CDOReviewUploadCommand extends UploadCommand {
         return overriddenValues;
     }
 
-    private Optional<String> validateAppOverride(Integer bdProposedApp, Integer currentApp, String appOverrideComment) {
+    private Optional<String> validateAppOverride(Double bdProposedApp, Double currentApp, String appOverrideComment) {
         String validationComment;
         if (bdProposedApp == null) {
             return Optional.empty();
@@ -143,10 +143,10 @@ public class CDOReviewUploadCommand extends UploadCommand {
     private Map<String, Object> getOverriddenFields(
             Integer currentQuantity,
             String currentSupplier,
-            Integer currentApp,
+            Double currentApp,
             Integer currentSla,
             Integer bdProposedQuantity,
-            Integer bdProposedApp,
+            Double bdProposedApp,
             Integer bdProposedSla,
             String bdProposedSupplier,
             String quantityOverrideComment,
@@ -174,7 +174,7 @@ public class CDOReviewUploadCommand extends UploadCommand {
         }
 
         if (bdProposedApp != null && bdProposedApp != currentApp) {
-            Integer appToUse = bdProposedApp;
+            Double appToUse = bdProposedApp;
             overriddenValues.put(OverrideKey.APP.toString(), appToUse);
             overrideComment.put(Constants.APP_OVERRIDE_COMMENT, appOverrideComment);
             overriddenValues.put(Constants.STATUS, OverrideStatus.UPDATE.toString());

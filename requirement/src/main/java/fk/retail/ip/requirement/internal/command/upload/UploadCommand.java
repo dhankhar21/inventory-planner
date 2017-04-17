@@ -119,7 +119,7 @@ public abstract class UploadCommand {
 
                             if (overriddenValues.containsKey(OverrideKey.APP.toString())) {
                                 requirementChangeMaps.add(PayloadCreationHelper.createChangeMap(OverrideKey.APP.toString(), String.valueOf(requirement.getApp()),row.getCdoPriceOverride().toString(), FdpRequirementEventType.CDO_APP_OVERRIDE.toString(), row.getCdoPriceOverrideReason(), userId));
-                                requirement.setApp((Integer) overriddenValues.get(OverrideKey.APP.toString()));
+                                requirement.setApp((Double) overriddenValues.get(OverrideKey.APP.toString()));
                             }
 
                             if (overriddenValues.containsKey(OverrideKey.SUPPLIER.toString())) {
