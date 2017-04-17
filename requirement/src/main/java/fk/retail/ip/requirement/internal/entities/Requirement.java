@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -67,6 +66,8 @@ public class Requirement extends AbstractEntity {
 
     private String createdBy;
 
+    private String updatedBy;
+
     private Long sslId;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -113,5 +114,9 @@ public class Requirement extends AbstractEntity {
         projectionId = other.projectionId;
         panIndiaQuantity = other.panIndiaQuantity;
         sslId = other.sslId;
+    }
+
+    public long getGroup() {
+        return this.requirementSnapshot.getGroup().getId();
     }
 }
