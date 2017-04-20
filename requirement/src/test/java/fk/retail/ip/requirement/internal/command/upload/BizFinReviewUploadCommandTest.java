@@ -6,6 +6,8 @@ import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.entities.RequirementEventLog;
 import fk.retail.ip.requirement.internal.entities.RequirementSnapshot;
+import fk.retail.ip.requirement.internal.enums.FdpRequirementEventType;
+import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.internal.repository.TestHelper;
@@ -69,10 +71,15 @@ public class BizFinReviewUploadCommandTest {
         Assert.assertEquals(100, (int)requirementMap.get((long)3).getQuantity());
         Assert.assertEquals(100, (int)requirementMap.get((long)4).getQuantity());
 
-//        Assert.assertEquals("", argumentCaptor.getValue().get(0).getAttribute());
-//        Assert.assertEquals("", argumentCaptor.getValue().get(0).getOldValue());
-//        Assert.assertEquals("", argumentCaptor.getValue().get(0).getNewValue());
-//        Assert.assertEquals("", argumentCaptor.getValue().get(0).getReason());
+        Assert.assertEquals(OverrideKey.QUANTITY.toString(), argumentCaptor.getValue().get(0).getAttribute());
+        Assert.assertEquals("100.0", argumentCaptor.getValue().get(0).getOldValue());
+        Assert.assertEquals("20", argumentCaptor.getValue().get(0).getNewValue());
+        Assert.assertEquals("test_bizfin", argumentCaptor.getValue().get(0).getReason());
+
+        Assert.assertEquals(OverrideKey.OVERRIDE_COMMENT.toString(), argumentCaptor.getValue().get(1).getAttribute());
+        Assert.assertNull(argumentCaptor.getValue().get(1).getOldValue());
+        Assert.assertEquals("test_bizfin", argumentCaptor.getValue().get(1).getNewValue());
+        Assert.assertEquals(FdpRequirementEventType.BIZFIN_COMMENT_RECOMMENDATION.toString(), argumentCaptor.getValue().get(1).getReason());
 
     }
 

@@ -2,6 +2,7 @@ package fk.retail.ip.requirement.internal.command.upload;
 
 
 import com.google.common.collect.Lists;
+import com.sun.org.apache.regexp.internal.RE;
 import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.command.EventLogger;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
@@ -146,7 +147,8 @@ public abstract class UploadCommand {
                             }
 
                             if (!overriddenValues.containsKey(OverrideKey.QUANTITY.toString()) &&
-                                    overriddenValues.containsKey(OverrideKey.OVERRIDE_COMMENT.toString())) {
+                                    overriddenValues.containsKey(OverrideKey.OVERRIDE_COMMENT.toString()) &&
+                                    requirement.getState().equals(RequirementApprovalState.BIZFIN_REVIEW.toString())) {
                                 requirementChangeMaps.add(PayloadCreationHelper.createChangeMap(
                                         OverrideKey.OVERRIDE_COMMENT.toString(),
                                         null,
