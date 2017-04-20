@@ -13,6 +13,7 @@ import fk.retail.ip.requirement.internal.enums.OverrideStatus;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalAction;
 import fk.retail.ip.requirement.internal.factory.RequirementStateFactory;
 import fk.retail.ip.requirement.internal.repository.RequirementApprovalTransitionRepository;
+import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.internal.repository.RequirementRepository;
 import fk.retail.ip.requirement.internal.states.RequirementState;
 import fk.retail.ip.requirement.model.*;
@@ -47,12 +48,14 @@ public class RequirementService {
     private final Provider<SearchCommand> searchCommandProvider;
     private final int PAGE_SIZE = 20;
     private final FdpRequirementIngestorImpl fdpRequirementIngestor;
+    private final RequirementEventLogRepository requirementEventLogRepository;
 
     @Inject
     public RequirementService(RequirementRepository requirementRepository, RequirementStateFactory requirementStateFactory,
                               ApprovalService approvalService, Provider<CalculateRequirementCommand> calculateRequirementCommandProvider,
                               RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository,
-                              SearchFilterCommand searchFilterCommand, Provider<SearchCommand> searchCommandProvider, FdpRequirementIngestorImpl fdpRequirementIngestor) {
+                              SearchFilterCommand searchFilterCommand, Provider<SearchCommand> searchCommandProvider, FdpRequirementIngestorImpl fdpRequirementIngestor,
+                              RequirementEventLogRepository requirementEventLogRepository) {
         this.requirementRepository = requirementRepository;
         this.requirementStateFactory = requirementStateFactory;
         this.approvalService = approvalService;
@@ -61,6 +64,7 @@ public class RequirementService {
         this.searchFilterCommand = searchFilterCommand;
         this.searchCommandProvider = searchCommandProvider;
         this.fdpRequirementIngestor = fdpRequirementIngestor;
+        this.requirementEventLogRepository = requirementEventLogRepository;
     }
 
     public StreamingOutput downloadRequirement(DownloadRequirementRequest downloadRequirementRequest) {
@@ -155,7 +159,18 @@ public class RequirementService {
         List<String> fsns = searchFilterCommand.getSearchFilterFsns(request.getFilters());
         requirements = requirementRepository.findRequirements(ids, state, fsns);
         log.info("Change state Request for {} number of requirements", requirements.size());
-        approvalService.changeState(requirements, state, userId, forward, getter, new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor));
+        approvalService.changeState(
+                requirements,
+                state,
+                userId,
+                forward,
+                getter,
+                new ApprovalService.CopyOnStateChangeAction(requirementRepository,
+                        requirementApprovalStateTransitionRepository,
+                        fdpRequirementIngestor,
+                        requirementEventLogRepository
+                )
+        );
         log.info("State changed for {} number of requirements", requirements.size());
         return "{\"msg\":\"Moved " + requirements.size() + " requirements to new state.\"}";
     }

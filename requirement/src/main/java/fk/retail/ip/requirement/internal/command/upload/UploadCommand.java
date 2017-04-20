@@ -3,13 +3,16 @@ package fk.retail.ip.requirement.internal.command.upload;
 
 import com.google.common.collect.Lists;
 import fk.retail.ip.requirement.internal.Constants;
+import fk.retail.ip.requirement.internal.command.EventLogger;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.command.PayloadCreationHelper;
+import fk.retail.ip.requirement.internal.context.OnHandQuantityContext;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.enums.FdpRequirementEventType;
 import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.OverrideStatus;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
+import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.internal.repository.RequirementRepository;
 import fk.retail.ip.requirement.model.RequirementChangeMap;
 import fk.retail.ip.requirement.model.RequirementChangeRequest;
@@ -35,10 +38,16 @@ public abstract class UploadCommand {
 
     private final RequirementRepository requirementRepository;
     private final FdpRequirementIngestorImpl fdpRequirementIngestor;
+    private final RequirementEventLogRepository requirementEventLogRepository;
 
-    public UploadCommand(RequirementRepository requirementRepository, FdpRequirementIngestorImpl fdpRequirementIngestor) {
+    public UploadCommand(
+            RequirementRepository requirementRepository,
+            FdpRequirementIngestorImpl fdpRequirementIngestor,
+            RequirementEventLogRepository requirementEventLogRepository
+    ) {
         this.requirementRepository = requirementRepository;
         this.fdpRequirementIngestor = fdpRequirementIngestor;
+        this.requirementEventLogRepository = requirementEventLogRepository;
     }
 
     public List<UploadOverrideFailureLineItem> execute(
@@ -104,6 +113,9 @@ public abstract class UploadCommand {
                                 else if(RequirementApprovalState.CDO_REVIEW.toString().equals(requirement.getState())) {
                                     eventType = FdpRequirementEventType.CDO_QUANTITY_OVERRIDE.toString();
                                     overrideReason = row.getCdoQuantityOverrideReason();
+                                } else if (RequirementApprovalState.BIZFIN_REVIEW.toString().equals(requirement.getState())) {
+                                    eventType = FdpRequirementEventType.BIZFIN_QUANTITY_RECOMMENDATION.toString();
+                                    overrideReason = row.getBizFinComment();
                                 }
                                 if(eventType!=null)
                                     requirementChangeMaps.add(PayloadCreationHelper.createChangeMap(OverrideKey.QUANTITY.toString(), String.valueOf(requirement.getQuantity()), overriddenValues.get(OverrideKey.QUANTITY.toString()).toString(), eventType, overrideReason, userId));
@@ -131,6 +143,18 @@ public abstract class UploadCommand {
                             if (overriddenValues.containsKey(OverrideKey.OVERRIDE_COMMENT.toString())) {
                                 requirement.setOverrideComment
                                         (overriddenValues.get(OverrideKey.OVERRIDE_COMMENT.toString()).toString());
+                            }
+
+                            if (!overriddenValues.containsKey(OverrideKey.QUANTITY.toString()) &&
+                                    overriddenValues.containsKey(OverrideKey.OVERRIDE_COMMENT.toString())) {
+                                requirementChangeMaps.add(PayloadCreationHelper.createChangeMap(
+                                        OverrideKey.OVERRIDE_COMMENT.toString(),
+                                        null,
+                                        row.getBizFinComment(),
+                                        FdpRequirementEventType.BIZFIN_QUANTITY_RECOMMENDATION.toString(),
+                                        FdpRequirementEventType.BIZFIN_COMMENT_RECOMMENDATION.toString(),
+                                        userId
+                                ));
                             }
 
                             if(!requirementChangeMaps.isEmpty()) {
@@ -162,6 +186,8 @@ public abstract class UploadCommand {
         //Push IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp
         log.info("Pushing IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp");
         fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
+        EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
+        eventLogger.insertEvent(requirementChangeRequestList);
 
         return uploadOverrideFailureLineItems;
     }
@@ -197,5 +223,6 @@ public abstract class UploadCommand {
     protected boolean isEmptyString(String comment) {
         return comment == null || comment.trim().isEmpty() ? true : false;
     }
+
 
 }

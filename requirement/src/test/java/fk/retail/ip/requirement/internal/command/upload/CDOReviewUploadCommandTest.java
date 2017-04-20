@@ -5,8 +5,11 @@ import fk.retail.ip.requirement.config.TestModule;
 import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.entities.Requirement;
+import fk.retail.ip.requirement.internal.entities.RequirementEventLog;
 import fk.retail.ip.requirement.internal.entities.RequirementSnapshot;
+import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
+import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.internal.repository.TestHelper;
 import fk.retail.ip.requirement.model.RequirementDownloadLineItem;
 import fk.retail.ip.requirement.model.UploadOverrideFailureLineItem;
@@ -37,6 +40,12 @@ public class CDOReviewUploadCommandTest {
     @Mock
     FdpRequirementIngestorImpl fdpRequirementIngestor;
 
+    @Mock
+    RequirementEventLogRepository requirementEventLogRepository;
+
+    @Captor
+    private ArgumentCaptor<List<RequirementEventLog>> argumentCaptor;
+
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
@@ -48,6 +57,8 @@ public class CDOReviewUploadCommandTest {
                 TestHelper.getCdoReviewRequirementDownloadLineItem();
         List<Requirement> requirements = getRequirements();
         List<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = CDOReviewUploadCommand.execute(requirementDownloadLineItems ,requirements, "");
+
+        Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
 
         Map<Long, Requirement> requirementMap = requirements.stream().collect
                 (Collectors.toMap(Requirement::getId, Function.identity()));
@@ -75,6 +86,37 @@ public class CDOReviewUploadCommandTest {
                 uploadOverrideFailureLineItems.get(2).getFailureReason());
         Assert.assertEquals(Constants.INVALID_APP_WITHOUT_COMMENT,
                 uploadOverrideFailureLineItems.get(3).getFailureReason());
+
+
+        Assert.assertEquals("100.0", argumentCaptor.getValue().get(0).getOldValue());
+        Assert.assertEquals("20", argumentCaptor.getValue().get(0).getNewValue());
+        Assert.assertEquals(OverrideKey.QUANTITY.toString(), argumentCaptor.getValue().get(0).getAttribute());
+        Assert.assertEquals("test_cdo_quantity", argumentCaptor.getValue().get(0).getReason());
+
+        Assert.assertEquals("101", argumentCaptor.getValue().get(2).getOldValue());
+        Assert.assertEquals("100", argumentCaptor.getValue().get(2).getNewValue());
+        Assert.assertEquals(OverrideKey.APP.toString(), argumentCaptor.getValue().get(2).getAttribute());
+        Assert.assertEquals("test_cdo_price", argumentCaptor.getValue().get(2).getReason());
+
+        Assert.assertEquals("ABC", argumentCaptor.getValue().get(3).getOldValue());
+        Assert.assertEquals("new_supplier", argumentCaptor.getValue().get(3).getNewValue());
+        Assert.assertEquals(OverrideKey.SUPPLIER.toString(), argumentCaptor.getValue().get(3).getAttribute());
+        Assert.assertEquals("test_cdo_supplier", argumentCaptor.getValue().get(3).getReason());
+
+        Assert.assertEquals("3", argumentCaptor.getValue().get(1).getOldValue());
+        Assert.assertEquals("20", argumentCaptor.getValue().get(1).getNewValue());
+        Assert.assertEquals(OverrideKey.SLA.toString(), argumentCaptor.getValue().get(1).getAttribute());
+        Assert.assertEquals("Sla overridden by CDO", argumentCaptor.getValue().get(1).getReason());
+
+        Assert.assertEquals("4", argumentCaptor.getValue().get(4).getOldValue());
+        Assert.assertEquals("20", argumentCaptor.getValue().get(4).getNewValue());
+        Assert.assertEquals(OverrideKey.SLA.toString(), argumentCaptor.getValue().get(4).getAttribute());
+
+        Assert.assertEquals("DEF", argumentCaptor.getValue().get(5).getOldValue());
+        Assert.assertEquals("new Supplier", argumentCaptor.getValue().get(5).getNewValue());
+        Assert.assertEquals(OverrideKey.SUPPLIER.toString(), argumentCaptor.getValue().get(5).getAttribute());
+
+        Assert.assertEquals(6, argumentCaptor.getValue().size());
 
     }
 

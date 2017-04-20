@@ -2,6 +2,7 @@ package fk.retail.ip.requirement.service;
 
 import com.google.common.collect.Lists;
 import fk.retail.ip.requirement.internal.Constants;
+import fk.retail.ip.requirement.internal.command.EventLogger;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.command.PayloadCreationHelper;
 import fk.retail.ip.requirement.internal.entities.AbstractEntity;
@@ -11,6 +12,7 @@ import fk.retail.ip.requirement.internal.enums.FdpRequirementEventType;
 import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.RequirementApprovalTransitionRepository;
+import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.internal.repository.RequirementRepository;
 import java.util.List;
 import java.util.Map;
@@ -65,11 +67,18 @@ public class ApprovalService<E extends AbstractEntity> {
         private RequirementRepository requirementRepository;
         private RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository;
         private FdpRequirementIngestorImpl fdpRequirementIngestor;
+        private RequirementEventLogRepository requirementEventLogRepository;
 
-        public CopyOnStateChangeAction(RequirementRepository requirementRepository, RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository, FdpRequirementIngestorImpl fdpRequirementIngestor) {
+        public CopyOnStateChangeAction(
+                RequirementRepository requirementRepository,
+                RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository,
+                FdpRequirementIngestorImpl fdpRequirementIngestor,
+                RequirementEventLogRepository requirementEventLogRepository
+        ) {
             this.requirementRepository = requirementRepository;
             this.requirementApprovalStateTransitionRepository = requirementApprovalStateTransitionRepository;
             this.fdpRequirementIngestor = fdpRequirementIngestor;
+            this.requirementEventLogRepository = requirementEventLogRepository;
         }
 
 
@@ -132,6 +141,9 @@ public class ApprovalService<E extends AbstractEntity> {
                     });
                 }
                 requirementChangeRequest.setRequirementChangeMaps(requirementChangeMaps);
+                if(requirementChangeRequest.getRequirement() == null) {
+                    System.out.println("i am null");
+                }
                 requirementChangeRequestList.add(requirementChangeRequest);
             });
             log.info("Updating Projections tables for Requirements");
@@ -139,6 +151,8 @@ public class ApprovalService<E extends AbstractEntity> {
             //Push APPROVE and CANCEL events to fdp
             log.info("Pushing APPROVE and CANCEL events to fdp");
             fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
+            EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
+            eventLogger.insertEvent(requirementChangeRequestList);
         }
 
 

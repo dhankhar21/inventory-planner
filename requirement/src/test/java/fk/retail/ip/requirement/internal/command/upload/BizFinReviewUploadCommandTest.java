@@ -4,8 +4,10 @@ import com.google.common.collect.Lists;
 import fk.retail.ip.requirement.config.TestModule;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.entities.Requirement;
+import fk.retail.ip.requirement.internal.entities.RequirementEventLog;
 import fk.retail.ip.requirement.internal.entities.RequirementSnapshot;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
+import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.internal.repository.TestHelper;
 import fk.retail.ip.requirement.model.RequirementDownloadLineItem;
 import fk.retail.ip.requirement.model.UploadOverrideFailureLineItem;
@@ -37,6 +39,12 @@ public class BizFinReviewUploadCommandTest {
     @Mock
     FdpRequirementIngestorImpl fdpRequirementIngestor;
 
+    @Mock
+    RequirementEventLogRepository requirementEventLogRepository;
+
+    @Captor
+    private ArgumentCaptor<List<RequirementEventLog>> argumentCaptor;
+
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
@@ -48,6 +56,8 @@ public class BizFinReviewUploadCommandTest {
         List<Requirement> requirements = getRequirements();
         List<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = bizFinReviewUploadCommand.execute(requirementDownloadLineItems, requirements, "");
 
+        Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
+
         Map<Long, Requirement> requirementMap = requirements.stream().collect
                 (Collectors.toMap(Requirement::getId, Function.identity()));
 
@@ -58,6 +68,11 @@ public class BizFinReviewUploadCommandTest {
         Assert.assertEquals("{\"quantityOverrideComment\":\"test_bizfin\"}", requirementMap.get((long)3).getOverrideComment());
         Assert.assertEquals(100, (int)requirementMap.get((long)3).getQuantity());
         Assert.assertEquals(100, (int)requirementMap.get((long)4).getQuantity());
+
+//        Assert.assertEquals("", argumentCaptor.getValue().get(0).getAttribute());
+//        Assert.assertEquals("", argumentCaptor.getValue().get(0).getOldValue());
+//        Assert.assertEquals("", argumentCaptor.getValue().get(0).getNewValue());
+//        Assert.assertEquals("", argumentCaptor.getValue().get(0).getReason());
 
     }
 
