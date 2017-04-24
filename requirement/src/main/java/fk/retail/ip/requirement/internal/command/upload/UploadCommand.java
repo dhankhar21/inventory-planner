@@ -9,10 +9,7 @@ import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.command.PayloadCreationHelper;
 import fk.retail.ip.requirement.internal.context.OnHandQuantityContext;
 import fk.retail.ip.requirement.internal.entities.Requirement;
-import fk.retail.ip.requirement.internal.enums.FdpRequirementEventType;
-import fk.retail.ip.requirement.internal.enums.OverrideKey;
-import fk.retail.ip.requirement.internal.enums.OverrideStatus;
-import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
+import fk.retail.ip.requirement.internal.enums.*;
 import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.internal.repository.RequirementRepository;
 import fk.retail.ip.requirement.model.RequirementChangeMap;
@@ -189,7 +186,7 @@ public abstract class UploadCommand {
         log.info("Pushing IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp");
         fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
         EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
-        eventLogger.insertEvent(requirementChangeRequestList);
+        eventLogger.insertEvent(requirementChangeRequestList, EventType.OVERRIDE);
 
         return uploadOverrideFailureLineItems;
     }

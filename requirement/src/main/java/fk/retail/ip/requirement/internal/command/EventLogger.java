@@ -3,6 +3,7 @@ package fk.retail.ip.requirement.internal.command;
 import com.google.inject.Inject;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.entities.RequirementEventLog;
+import fk.retail.ip.requirement.internal.enums.EventType;
 import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.model.RequirementChangeMap;
 import fk.retail.ip.requirement.model.RequirementChangeRequest;
@@ -24,7 +25,7 @@ public class EventLogger {
         this.requirementEventLogRepository = requirementEventLogRepository;
     }
 
-    public void insertEvent(List<RequirementChangeRequest> requirementChangeRequestList) {
+    public void insertEvent(List<RequirementChangeRequest> requirementChangeRequestList, EventType eventType) {
         List<RequirementEventLog> requirementEventLogs = new ArrayList<>();
         requirementChangeRequestList.forEach(item -> {
             List<RequirementChangeMap> requirementChangeMaps = item.getRequirementChangeMaps();
@@ -39,6 +40,7 @@ public class EventLogger {
                 requirementEventLog.setTimestamp(getCurrentTimestamp());
                 requirementEventLog.setEntityId(String.valueOf(requirement.getId()));
                 requirementEventLogs.add(requirementEventLog);
+                requirementEventLog.setEventType(eventType.getEventValue());
             });
         });
         requirementEventLogRepository.persist(requirementEventLogs);

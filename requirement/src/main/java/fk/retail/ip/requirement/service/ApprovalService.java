@@ -8,6 +8,7 @@ import fk.retail.ip.requirement.internal.command.PayloadCreationHelper;
 import fk.retail.ip.requirement.internal.entities.AbstractEntity;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.entities.RequirementApprovalTransition;
+import fk.retail.ip.requirement.internal.enums.EventType;
 import fk.retail.ip.requirement.internal.enums.FdpRequirementEventType;
 import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
@@ -90,7 +91,8 @@ public class ApprovalService<E extends AbstractEntity> {
             Set<String> fsns = requirements.stream().map(Requirement::getFsn).collect(Collectors.toSet());
             List<RequirementChangeRequest> requirementChangeRequestList = Lists.newArrayList();
             List<Requirement> allEnabledRequirements = requirementRepository.find(fsns, true);
-            requirements.stream().forEach((requirement) -> {
+            EventType eventType = EventType.APPROVAL;
+            for (Requirement requirement : requirements) {
                 String toState = requirementToTargetStateMap.get(requirement.getId());
                 boolean isIPCReviewState = RequirementApprovalState.IPC_REVIEW.toString().equals(toState);
                 String cdoState = RequirementApprovalState.CDO_REVIEW.toString();
@@ -129,6 +131,7 @@ public class ApprovalService<E extends AbstractEntity> {
                         requirement.setCurrent(false);
                         requirementChangeRequest.setRequirement(newEntity);
                     }
+                    eventType = EventType.APPROVAL;
                 } else {
                     //Add CANCEL events to fdp request
                     log.info("Adding CANCEL events to fdp request");
@@ -139,20 +142,18 @@ public class ApprovalService<E extends AbstractEntity> {
                         requirementChangeRequest.setRequirement(toStateEntity.get());
                         e.setCreatedBy(userId);
                     });
+                    eventType = EventType.CANCELLATION;
                 }
                 requirementChangeRequest.setRequirementChangeMaps(requirementChangeMaps);
-                if(requirementChangeRequest.getRequirement() == null) {
-                    System.out.println("i am null");
-                }
                 requirementChangeRequestList.add(requirementChangeRequest);
-            });
+            }
             log.info("Updating Projections tables for Requirements");
             requirementRepository.updateProjections(requirements, groupToTargetState);
             //Push APPROVE and CANCEL events to fdp
             log.info("Pushing APPROVE and CANCEL events to fdp");
             fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
             EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
-            eventLogger.insertEvent(requirementChangeRequestList);
+            eventLogger.insertEvent(requirementChangeRequestList, eventType);
         }
 
 

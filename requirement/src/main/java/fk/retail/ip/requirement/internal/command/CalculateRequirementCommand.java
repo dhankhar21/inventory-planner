@@ -13,10 +13,7 @@ import fk.retail.ip.requirement.internal.context.ForecastContext;
 import fk.retail.ip.requirement.internal.context.OnHandQuantityContext;
 import fk.retail.ip.requirement.internal.context.PolicyContext;
 import fk.retail.ip.requirement.internal.entities.*;
-import fk.retail.ip.requirement.internal.enums.FdpRequirementEventType;
-import fk.retail.ip.requirement.internal.enums.OverrideKey;
-import fk.retail.ip.requirement.internal.enums.PolicyType;
-import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
+import fk.retail.ip.requirement.internal.enums.*;
 import fk.retail.ip.requirement.internal.repository.*;
 import fk.retail.ip.requirement.model.RequirementChangeMap;
 import fk.retail.ip.requirement.model.RequirementChangeRequest;
@@ -203,7 +200,7 @@ public class CalculateRequirementCommand {
         addProjectionCreatedRequest(allRequirements, requirementChangeRequestList);
 
         EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
-        eventLogger.insertEvent(requirementChangeRequestList);
+        eventLogger.insertEvent(requirementChangeRequestList, EventType.CREATE_REQUIREMENT);
 
         //Push PROJECTION_CREATED, SUPPLIER_ASSIGNED and APP_ASSIGNED events to fdp
         log.info("Pushing PROJECTION_CREATED, SUPPLIER_ASSIGNED and APP_ASSIGNED events to fdp");

@@ -11,7 +11,7 @@ import java.util.Date;
 
 @Entity
 @Data
-@Table(name = "requirement_event")
+@Table(name = "requirement_event_log")
 public class RequirementEventLog{
 
     @Id
@@ -24,5 +24,6 @@ public class RequirementEventLog{
     private String reason;
     private String userId;
     private String timestamp;
+    private int eventType;
 
 }
