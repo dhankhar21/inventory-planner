@@ -75,7 +75,7 @@ public class ProposedUploadCommandTest {
         Assert.assertEquals(Constants.FSN_OR_WAREHOUSE_IS_MISSING,
                 uploadOverrideFailureLineItems.get(1).getFailureReason());
 
-//        Assert.assertEquals("",argumentCaptor.getValue().get(0).getEntityId());
+        /*Test the entities ingested to fdp and saved in requirement event log*/
         Assert.assertEquals(OverrideKey.QUANTITY.toString(), argumentCaptor.getValue().get(0).getAttribute());
         Assert.assertEquals("20", argumentCaptor.getValue().get(0).getNewValue());
         Assert.assertEquals("100.0", argumentCaptor.getValue().get(0).getOldValue());
