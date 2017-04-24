@@ -183,7 +183,7 @@ public abstract class UploadCommand {
             }
 
         //Push IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp
-        log.info("Pushing IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp");
+        log.debug("Pushing IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp");
         fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
         EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
         eventLogger.insertEvent(requirementChangeRequestList, EventType.OVERRIDE);

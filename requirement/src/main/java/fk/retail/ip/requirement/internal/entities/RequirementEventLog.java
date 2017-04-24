@@ -24,6 +24,6 @@ public class RequirementEventLog{
     private String reason;
     private String userId;
     private String timestamp;
-    private int eventType;
+    private String eventType;
 
 }

@@ -7,6 +7,7 @@ import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.entities.RequirementEventLog;
 import fk.retail.ip.requirement.internal.entities.RequirementSnapshot;
+import fk.retail.ip.requirement.internal.enums.EventType;
 import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
@@ -92,6 +93,7 @@ public class CDOReviewUploadCommandTest {
         Assert.assertEquals("20", argumentCaptor.getValue().get(0).getNewValue());
         Assert.assertEquals(OverrideKey.QUANTITY.toString(), argumentCaptor.getValue().get(0).getAttribute());
         Assert.assertEquals("test_cdo_quantity", argumentCaptor.getValue().get(0).getReason());
+        Assert.assertEquals(EventType.OVERRIDE.toString(), argumentCaptor.getValue().get(0).getEventType());
 
         Assert.assertEquals("101", argumentCaptor.getValue().get(2).getOldValue());
         Assert.assertEquals("100", argumentCaptor.getValue().get(2).getNewValue());
@@ -107,6 +109,7 @@ public class CDOReviewUploadCommandTest {
         Assert.assertEquals("20", argumentCaptor.getValue().get(1).getNewValue());
         Assert.assertEquals(OverrideKey.SLA.toString(), argumentCaptor.getValue().get(1).getAttribute());
         Assert.assertEquals("Sla overridden by CDO", argumentCaptor.getValue().get(1).getReason());
+        Assert.assertEquals(EventType.OVERRIDE.toString(), argumentCaptor.getValue().get(0).getEventType());
 
         Assert.assertEquals("4", argumentCaptor.getValue().get(4).getOldValue());
         Assert.assertEquals("20", argumentCaptor.getValue().get(4).getNewValue());

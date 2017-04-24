@@ -7,6 +7,7 @@ import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.entities.RequirementEventLog;
 import fk.retail.ip.requirement.internal.entities.RequirementSnapshot;
+import fk.retail.ip.requirement.internal.enums.EventType;
 import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
@@ -81,12 +82,14 @@ public class ProposedUploadCommandTest {
         Assert.assertEquals("100.0", argumentCaptor.getValue().get(0).getOldValue());
         Assert.assertEquals("test_ipc", argumentCaptor.getValue().get(0).getReason());
         Assert.assertEquals("dummyUser", argumentCaptor.getValue().get(0).getUserId());
+        Assert.assertEquals(EventType.OVERRIDE.toString(), argumentCaptor.getValue().get(0).getEventType());
 
         Assert.assertEquals(OverrideKey.QUANTITY.toString(), argumentCaptor.getValue().get(1).getAttribute());
         Assert.assertEquals("0", argumentCaptor.getValue().get(1).getNewValue());
         Assert.assertEquals("100.0", argumentCaptor.getValue().get(1).getOldValue());
         Assert.assertEquals("test_ipc", argumentCaptor.getValue().get(1).getReason());
         Assert.assertEquals("dummyUser", argumentCaptor.getValue().get(1).getUserId());
+        Assert.assertEquals(EventType.OVERRIDE.toString(), argumentCaptor.getValue().get(0).getEventType());
 
         Assert.assertEquals(2, argumentCaptor.getValue().size());
 

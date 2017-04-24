@@ -4,6 +4,7 @@ import fk.retail.ip.requirement.config.TestDbModule;
 import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.entities.*;
+import fk.retail.ip.requirement.internal.enums.EventType;
 import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.RequirementApprovalTransitionRepository;
@@ -90,6 +91,7 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
         Assert.assertEquals(toState, argumentCaptor.getValue().get(0).getNewValue());
         Assert.assertEquals("Moved to next state", argumentCaptor.getValue().get(0).getReason());
         Assert.assertEquals("userId", argumentCaptor.getValue().get(0).getUserId());
+        Assert.assertEquals(EventType.APPROVAL.toString(), argumentCaptor.getValue().get(0).getEventType());
     }
 
 
@@ -117,6 +119,7 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
         Assert.assertEquals(toState, argumentCaptor.getValue().get(0).getNewValue());
         Assert.assertEquals("Moved to next state", argumentCaptor.getValue().get(0).getReason());
         Assert.assertEquals("userId", argumentCaptor.getValue().get(0).getUserId());
+        Assert.assertEquals(EventType.APPROVAL.toString(), argumentCaptor.getValue().get(0).getEventType());
     }
 
 
@@ -141,6 +144,7 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
         Assert.assertEquals(toState, argumentCaptor.getValue().get(0).getNewValue());
         Assert.assertEquals("Moved to next state", argumentCaptor.getValue().get(0).getReason());
         Assert.assertEquals("userId", argumentCaptor.getValue().get(0).getUserId());
+        Assert.assertEquals(EventType.APPROVAL.toString(), argumentCaptor.getValue().get(0).getEventType());
     }
 
 
@@ -165,6 +169,7 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
         Assert.assertEquals(toState, argumentCaptor.getValue().get(0).getNewValue());
         Assert.assertEquals("Moved to next state", argumentCaptor.getValue().get(0).getReason());
         Assert.assertEquals("userId", argumentCaptor.getValue().get(0).getUserId());
+        Assert.assertEquals(EventType.APPROVAL.toString(), argumentCaptor.getValue().get(0).getEventType());
     }
 
 

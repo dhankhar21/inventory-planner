@@ -191,14 +191,14 @@ public class CalculateRequirementCommand {
         requirementRepository.persist(allRequirements);
 
         //Add PROJECTION_CREATED events to fdp request
-        log.info("Adding PROJECTION_CREATED events to fdp request");
+        log.debug("Adding PROJECTION_CREATED events to fdp request");
         addProjectionCreatedRequest(allRequirements, requirementChangeRequestList);
 
         EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
-        eventLogger.insertEvent(requirementChangeRequestList, EventType.CREATE_REQUIREMENT);
+        eventLogger.insertEvent(requirementChangeRequestList, EventType.REQUIREMENT_CREATION);
 
         //Push PROJECTION_CREATED, SUPPLIER_ASSIGNED and APP_ASSIGNED events to fdp
-        log.info("Pushing PROJECTION_CREATED, SUPPLIER_ASSIGNED and APP_ASSIGNED events to fdp");
+        log.debug("Pushing PROJECTION_CREATED, SUPPLIER_ASSIGNED and APP_ASSIGNED events to fdp");
         fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
     }
 

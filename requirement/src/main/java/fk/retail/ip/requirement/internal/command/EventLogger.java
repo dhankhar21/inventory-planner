@@ -20,7 +20,6 @@ import java.util.List;
 public class EventLogger {
     private final RequirementEventLogRepository requirementEventLogRepository;
 
-    @Inject
     public EventLogger(RequirementEventLogRepository requirementEventLogRepository) {
         this.requirementEventLogRepository = requirementEventLogRepository;
     }
@@ -40,7 +39,7 @@ public class EventLogger {
                 requirementEventLog.setTimestamp(getCurrentTimestamp());
                 requirementEventLog.setEntityId(String.valueOf(requirement.getId()));
                 requirementEventLogs.add(requirementEventLog);
-                requirementEventLog.setEventType(eventType.getEventValue());
+                requirementEventLog.setEventType(eventType.toString());
             });
         });
         requirementEventLogRepository.persist(requirementEventLogs);

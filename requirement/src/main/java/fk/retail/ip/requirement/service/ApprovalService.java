@@ -150,7 +150,7 @@ public class ApprovalService<E extends AbstractEntity> {
             log.info("Updating Projections tables for Requirements");
             requirementRepository.updateProjections(requirements, groupToTargetState);
             //Push APPROVE and CANCEL events to fdp
-            log.info("Pushing APPROVE and CANCEL events to fdp");
+            log.debug("Pushing APPROVE and CANCEL events to fdp");
             fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
             EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
             eventLogger.insertEvent(requirementChangeRequestList, eventType);
