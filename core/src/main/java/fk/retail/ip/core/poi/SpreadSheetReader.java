@@ -2,6 +2,8 @@ package fk.retail.ip.core.poi;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,15 +53,31 @@ public class SpreadSheetReader {
                     }
                     DataFormatter formatter = new DataFormatter();
 
-                    if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                    if(headers.get(c).equals("CDO Price Override")) {
                         String value = formatter.formatCellValue(cell);
                         try {
-                            values.put(headers.get(c), Long.parseLong(value));
-                        } catch (NumberFormatException ex) {
-                            values.put(headers.get(c), Double.parseDouble(value));
+                            values.put(headers.get(c), NumberFormat.getInstance().parse(value).doubleValue());
+                        } catch (ParseException e) {
+                            values.put(headers.get(c), cell.getStringCellValue());
                         }
+
                     } else {
-                        values.put(headers.get(c), cell.getStringCellValue());
+                        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                            String value = formatter.formatCellValue(cell);
+                            try {
+                                values.put(headers.get(c), Long.parseLong(value));
+                            } catch (NumberFormatException ex) {
+                                values.put(headers.get(c), Double.parseDouble(value));
+                            }
+                        } else {
+//                            String value = formatter.formatCellValue(cell);
+//                            try {
+//                                values.put(headers.get(c), NumberFormat.getInstance().parse(value).doubleValue());
+//                            } catch (ParseException e) {
+//                                values.put(headers.get(c), cell.getStringCellValue());
+//                            }
+                            values.put(headers.get(c), cell.getStringCellValue());
+                        }
                     }
 
                     if (blankRow) {
