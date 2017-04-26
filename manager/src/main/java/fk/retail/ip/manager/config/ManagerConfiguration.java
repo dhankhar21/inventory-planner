@@ -40,6 +40,9 @@ public class ManagerConfiguration extends Configuration implements HasDataSource
     @NotNull
     private D42Configuration d42Configuration;
 
+    @NotNull
+    private ProcClientConfiguration procClientConfiguration;
+
     @Override
     public DataSourceFactory getDatabaseConfiguration() {
         return dataSource;
