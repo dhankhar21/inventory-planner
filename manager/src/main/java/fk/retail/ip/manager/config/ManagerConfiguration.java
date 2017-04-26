@@ -38,9 +38,6 @@ public class ManagerConfiguration extends Configuration implements HasDataSource
     private JerseyClientConfiguration clientConfiguration;
 
     @NotNull
-    private D42Configuration d42Configuration;
-
-    @NotNull
     private ProcClientConfiguration procClientConfiguration;
 
     @Override
