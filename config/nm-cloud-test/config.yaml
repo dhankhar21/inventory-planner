@@ -111,8 +111,10 @@ clientConfiguration:
   gzipEnabledForRequests: false
   chunkedEncodingEnabled: false
 
-d42Configuration:
-  accessKey: "EKBK5XNIHLM7E3290RBX"
-  secretKey: "QGXi9BkrIArIb255tHRFR7trEcPSvxBi3X0LsBwP"
-  url: "http://10.47.2.2"
+procClientConfiguration:
+  url: http://10.85.52.17
+  viewPath: "/requirements"
+  callbackUrl: http://10.85.110.102:32000/v1/requirement/callback/
+  requirementQueueName: proc_b2b_production
+
 
