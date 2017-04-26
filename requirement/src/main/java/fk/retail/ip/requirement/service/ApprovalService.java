@@ -120,7 +120,7 @@ public class ApprovalService<E extends AbstractEntity> {
                         newEntity.setPreviousStateId(requirement.getId());
                         newEntity.setCurrent(true);
                         tobeInserted.add(newEntity);
-//                        requirementRepository.persist(newEntity);
+                        requirementRepository.persist(newEntity);
                         requirement.setCurrent(false);
                         requirementChangeRequest.setRequirement(newEntity);
                     }
@@ -138,7 +138,7 @@ public class ApprovalService<E extends AbstractEntity> {
                 requirementChangeRequest.setRequirementChangeMaps(requirementChangeMaps);
                 requirementChangeRequestList.add(requirementChangeRequest);
             });
-            requirementRepository.bulkInsert(tobeInserted);
+            //requirementRepository.bulkInsert(tobeInserted);
             log.info("Updating Projections tables for Requirements");
             requirementRepository.updateProjections(requirements, groupToTargetState);
             //Push APPROVE and CANCEL events to fdp

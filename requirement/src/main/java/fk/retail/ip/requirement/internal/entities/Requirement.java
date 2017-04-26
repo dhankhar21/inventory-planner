@@ -2,9 +2,15 @@ package fk.retail.ip.requirement.internal.entities;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.*;
+import org.hibernate.annotations.Parameter;
 
 
 import javax.persistence.*;
+import javax.persistence.AccessType;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -25,6 +31,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Requirement extends AbstractEntity {
 
     private static final long serialVersionUID = 1L;
+
+    @GenericGenerator(name="table-hilo-generator", strategy="org.hibernate.id.TableHiLoGenerator",
+            parameters = {
+                    @Parameter(name = "table", value = "hilo")
+            })
+
+    @Id
+    @GeneratedValue(generator="table-hilo-generator")
+    @Access(AccessType.PROPERTY)
+    protected Long id;
 
     //todo : add this field in projection_states in old db
     @NotNull
