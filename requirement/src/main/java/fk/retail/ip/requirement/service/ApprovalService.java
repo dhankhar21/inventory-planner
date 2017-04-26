@@ -12,10 +12,8 @@ import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.RequirementApprovalTransitionRepository;
 import fk.retail.ip.requirement.internal.repository.RequirementRepository;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -81,6 +79,7 @@ public class ApprovalService<E extends AbstractEntity> {
             Set<String> fsns = requirements.stream().map(Requirement::getFsn).collect(Collectors.toSet());
             List<RequirementChangeRequest> requirementChangeRequestList = Lists.newArrayList();
             List<Requirement> allEnabledRequirements = requirementRepository.find(fsns, true);
+            List<Requirement> tobeInserted = new ArrayList<>();
             requirements.stream().forEach((requirement) -> {
                 String toState = requirementToTargetStateMap.get(requirement.getId());
                 boolean isIPCReviewState = RequirementApprovalState.IPC_REVIEW.toString().equals(toState);
@@ -120,7 +119,8 @@ public class ApprovalService<E extends AbstractEntity> {
                         newEntity.setCreatedBy(userId);
                         newEntity.setPreviousStateId(requirement.getId());
                         newEntity.setCurrent(true);
-                        requirementRepository.persist(newEntity);
+                        tobeInserted.add(newEntity);
+//                        requirementRepository.persist(newEntity);
                         requirement.setCurrent(false);
                         requirementChangeRequest.setRequirement(newEntity);
                     }
@@ -138,6 +138,7 @@ public class ApprovalService<E extends AbstractEntity> {
                 requirementChangeRequest.setRequirementChangeMaps(requirementChangeMaps);
                 requirementChangeRequestList.add(requirementChangeRequest);
             });
+            requirementRepository.bulkInsert(tobeInserted);
             log.info("Updating Projections tables for Requirements");
             requirementRepository.updateProjections(requirements, groupToTargetState);
             //Push APPROVE and CANCEL events to fdp

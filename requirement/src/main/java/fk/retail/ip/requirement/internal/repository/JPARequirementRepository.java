@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import javax.inject.Provider;
 import javax.persistence.EntityManager;
@@ -190,6 +192,18 @@ public class JPARequirementRepository extends SimpleJpaGenericRepository<Require
         query.setParameter("fsns", fsns);
         query.setParameter("state", state);
         return query.getResultList();
+    }
+
+    public void bulkInsert(List<Requirement> requirements) {
+        Session session = getEntityManager().unwrap(Session.class);
+//        Transaction transaction = session.beginTransaction();
+        requirements.forEach(requirement -> {
+            session.save(requirement);
+        });
+        session.flush();
+//        transaction.commit();
+//        session.close();
+
     }
 
 }

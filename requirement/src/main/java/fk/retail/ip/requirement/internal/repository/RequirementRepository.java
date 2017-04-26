@@ -2,6 +2,7 @@ package fk.retail.ip.requirement.internal.repository;
 
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.sp.common.extensions.jpa.JpaGenericRepository;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,4 +34,6 @@ public interface RequirementRepository extends JpaGenericRepository<Requirement,
 
     //TODO: legacy code
     void updateProjections(List<Requirement> requirements, Map<Long, String> groupToTargetState);
+
+    void bulkInsert(List<Requirement> requirements);
 }
