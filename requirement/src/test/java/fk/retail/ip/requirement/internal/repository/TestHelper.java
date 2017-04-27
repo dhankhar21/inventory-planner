@@ -241,7 +241,7 @@ public class TestHelper {
         /*Quantity should be overridden*/
         firstItem.setWarehouseName("dummy_warehouse_1");
         firstItem.setFsn("dummy_fsn");
-        firstItem.setRequirementId((long) 1);
+        firstItem.setRequirementId("1");
         firstItem.setQuantity(100);
         firstItem.setIpcQuantityOverride(20);
         firstItem.setIpcQuantityOverrideReason("test_ipc");
@@ -256,7 +256,7 @@ public class TestHelper {
         RequirementDownloadLineItem secondItem = new RequirementDownloadLineItem();
         secondItem.setWarehouseName("dummy_warehouse_2");
         secondItem.setFsn("dummy_fsn");
-        secondItem.setRequirementId((long)2);
+        secondItem.setRequirementId("2");
         secondItem.setQuantity(100);
         secondItem.setIpcQuantityOverride(20);
         requirementDownloadLineItems.add(secondItem);
@@ -264,7 +264,7 @@ public class TestHelper {
         /*Override should fail as warehouse is missing*/
         RequirementDownloadLineItem thirdItem = new RequirementDownloadLineItem();
         thirdItem.setFsn("dummy_fsn_1");
-        thirdItem.setRequirementId((long) 3);
+        thirdItem.setRequirementId("3");
         thirdItem.setIpcQuantityOverride(20);
         requirementDownloadLineItems.add(thirdItem);
 
@@ -273,7 +273,7 @@ public class TestHelper {
         fourthItem.setFsn("dummy_fsn_1");
         fourthItem.setWarehouseName("dummy_warehouse");
         fourthItem.setQuantity(100);
-        fourthItem.setRequirementId((long) 4);
+        fourthItem.setRequirementId("4");
         fourthItem.setIpcQuantityOverride(0);
         fourthItem.setIpcQuantityOverrideReason("test_ipc");
         requirementDownloadLineItems.add(fourthItem);
@@ -290,7 +290,7 @@ public class TestHelper {
         /*Quantity, app, supplier, sla should be overridden with comment*/
         RequirementDownloadLineItem firstItem = new RequirementDownloadLineItem();
         firstItem.setWarehouseName("dummy_warehouse_1");
-        firstItem.setRequirementId((long) 1);
+        firstItem.setRequirementId("1");
         firstItem.setFsn("fsn");
         firstItem.setCdoQuantityOverride(20);
         firstItem.setCdoQuantityOverrideReason("test_cdo_quantity");
@@ -303,7 +303,7 @@ public class TestHelper {
 
         /*Quantity override should not happen*/
         RequirementDownloadLineItem secondItem = new RequirementDownloadLineItem();
-        secondItem.setRequirementId((long) 2);
+        secondItem.setRequirementId("2");
         secondItem.setWarehouseName("dummy_warehouse_2");
         secondItem.setFsn("fsn");
         secondItem.setCdoQuantityOverride(-1);
@@ -312,7 +312,7 @@ public class TestHelper {
 
         /*No override should happen as comment is missing*/
         RequirementDownloadLineItem thirdItem = new RequirementDownloadLineItem();
-        thirdItem.setRequirementId((long) 3);
+        thirdItem.setRequirementId("3");
         thirdItem.setWarehouseName("dummy_warehouse_1");
         thirdItem.setFsn("fsn_1");
         thirdItem.setCdoQuantityOverride(20);
@@ -321,7 +321,7 @@ public class TestHelper {
         /*No override should happen as sla < 0 and supplier override comment is absent*/
         RequirementDownloadLineItem fourthItem = new RequirementDownloadLineItem();
         fourthItem.setFsn("fsn_1");
-        fourthItem.setRequirementId((long) 4);
+        fourthItem.setRequirementId("4");
         fourthItem.setWarehouseName("dummy_warehouse_2");
         fourthItem.setNewSla(-1);
         fourthItem.setCdoSupplierOverride("new_supplier");
@@ -330,7 +330,7 @@ public class TestHelper {
         /*No override as app quantity is less than zero and reason is missing*/
         RequirementDownloadLineItem fifthItem = new RequirementDownloadLineItem();
         fifthItem.setFsn("fsn_2");
-        fifthItem.setRequirementId((long) 5);
+        fifthItem.setRequirementId("5");
         fifthItem.setWarehouseName("dummy_warehouse_1");
         fifthItem.setCdoPriceOverride(-1);
         fifthItem.setCdoPriceOverrideReason("  ");
@@ -339,7 +339,7 @@ public class TestHelper {
         /*Supplier and sla should be overridden*/
         RequirementDownloadLineItem sixthItem = new RequirementDownloadLineItem();
         sixthItem.setFsn("fsn_2");
-        sixthItem.setRequirementId((long) 6);
+        sixthItem.setRequirementId("6");
         sixthItem.setWarehouseName("dummy_warehouse_2");
         sixthItem.setCdoSupplierOverride("new Supplier");
         sixthItem.setCdoSupplierOverrideReason("test_cdo_supplier");
@@ -360,7 +360,7 @@ public class TestHelper {
         /*Quantity and comment should be overridden*/
         RequirementDownloadLineItem firstItem = new RequirementDownloadLineItem();
         firstItem.setWarehouseName("dummy_warehouse_1");
-        firstItem.setRequirementId((long) 1);
+        firstItem.setRequirementId("1");
         firstItem.setFsn("fsn");
         firstItem.setBizFinRecommendedQuantity(20);
         firstItem.setBizFinComment("test_bizfin");
@@ -369,7 +369,7 @@ public class TestHelper {
         /*Override should fail as comment is missing*/
         RequirementDownloadLineItem secondItem = new RequirementDownloadLineItem();
         secondItem.setWarehouseName("dummy_warehouse_2");
-        secondItem.setRequirementId((long) 2);
+        secondItem.setRequirementId("2");
         secondItem.setFsn("fsn");
         secondItem.setBizFinRecommendedQuantity(20);
         requirementDownloadLineItems.add(secondItem);
@@ -377,14 +377,14 @@ public class TestHelper {
         /*Override only the comment*/
         RequirementDownloadLineItem thirdItem = new RequirementDownloadLineItem();
         thirdItem.setFsn("fsn_1");
-        thirdItem.setRequirementId((long) 3);
+        thirdItem.setRequirementId("3");
         thirdItem.setWarehouseName("dummy_warehouse_1");
         thirdItem.setBizFinComment("test_bizfin");
         requirementDownloadLineItems.add(thirdItem);
 
         /*Should impact nothing on upload */
         RequirementDownloadLineItem fourthItem = new RequirementDownloadLineItem();
-        fourthItem.setRequirementId((long) 4);
+        fourthItem.setRequirementId("4");
         fourthItem.setFsn("fsn_1");
         fourthItem.setWarehouseName("dummy_warehouse_2");
         requirementDownloadLineItems.add(fourthItem);

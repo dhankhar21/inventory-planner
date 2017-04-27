@@ -101,7 +101,7 @@ public class RequirementService {
             List<RequirementDownloadLineItem> requirementDownloadLineItems = mapper.convertValue(parsedMappingList,
                     new TypeReference<List<RequirementDownloadLineItem>>() {});
             List<Requirement> requirements;
-            List<Long> requirementIds = new ArrayList<>();
+            List<String> requirementIds = new ArrayList<>();
             requirementDownloadLineItems.forEach(row ->
                             requirementIds.add(row.getRequirementId())
             );

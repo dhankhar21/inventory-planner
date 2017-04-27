@@ -48,7 +48,7 @@ public class BizFinReviewUploadCommandTest {
         List<Requirement> requirements = getRequirements();
         List<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = bizFinReviewUploadCommand.execute(requirementDownloadLineItems, requirements, "");
 
-        Map<Long, Requirement> requirementMap = requirements.stream().collect
+        Map<String, Requirement> requirementMap = requirements.stream().collect
                 (Collectors.toMap(Requirement::getId, Function.identity()));
 
         Assert.assertEquals(1, uploadOverrideFailureLineItems.size());
@@ -84,7 +84,7 @@ public class BizFinReviewUploadCommandTest {
                 "",
                 "Daily planning"
         );
-        requirement.setId((long) 1);
+        requirement.setId("1");
         requirements.add(requirement);
 
         requirement = TestHelper.getRequirement(
@@ -102,7 +102,7 @@ public class BizFinReviewUploadCommandTest {
                 "",
                 "Daily planning"
         );
-        requirement.setId((long) 2);
+        requirement.setId("2");
         requirements.add(requirement);
 
         requirement = TestHelper.getRequirement(
@@ -120,7 +120,7 @@ public class BizFinReviewUploadCommandTest {
                 "",
                 "Daily planning"
         );
-        requirement.setId((long) 3);
+        requirement.setId("3");
         requirements.add(requirement);
 
         requirement = TestHelper.getRequirement(
@@ -138,7 +138,7 @@ public class BizFinReviewUploadCommandTest {
                 "",
                 "Daily planning"
         );
-        requirement.setId((long) 4);
+        requirement.setId("4");
         requirements.add(requirement);
 
         return requirements;

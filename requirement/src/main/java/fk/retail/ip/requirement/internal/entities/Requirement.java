@@ -12,9 +12,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-
+import java.util.Date;
 
 
 /**
@@ -28,19 +27,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 //todo: cleanup
 @Table(name = "projection_states")
 //@Table(name = "REQUIREMENT")
-public class Requirement extends AbstractEntity {
+public class Requirement {
+
+//    @GenericGenerator(name="table-hilo-generator", strategy="org.hibernate.id.TableHiLoGenerator",
+//            parameters = {
+//                    @Parameter(name = "table", value = "hilo")
+//            })
+//
+    @Id
+//    @GeneratedValue(generator="table-hilo-generator")
+//    @Access(AccessType.PROPERTY)
+    private String id;
 
     private static final long serialVersionUID = 1L;
-
-    @GenericGenerator(name="table-hilo-generator", strategy="org.hibernate.id.TableHiLoGenerator",
-            parameters = {
-                    @Parameter(name = "table", value = "hilo")
-            })
-
-    @Id
-    @GeneratedValue(generator="table-hilo-generator")
-    @Access(AccessType.PROPERTY)
-    protected Long id;
 
     //todo : add this field in projection_states in old db
     @NotNull
@@ -97,7 +96,7 @@ public class Requirement extends AbstractEntity {
     //todo: cleanup (fields for backward compatibilty)
     //TODO: legacy code
     @Column(name = "prev_state_id")
-    private Long previousStateId;
+    private String previousStateId;
 
     //TODO: legacy code
     @Column(name = "pan_india")
@@ -110,8 +109,29 @@ public class Requirement extends AbstractEntity {
     //todo:cleanup
     private String mrpCurrency;
 
-    public Requirement(Long id) {
+    public Requirement(String id) {
         this.id = id;
+    }
+
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Date createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Date updatedAt;
+
+    @NotNull
+    @Version
+    private Long version;
+
+    @PrePersist
+    private void beforePersist() {
+        createdAt = new Date();
+        updatedAt = new Date();
+    }
+
+    @PreUpdate
+    private void beforeUpdate() {
+        updatedAt = new Date();
     }
 
     public Requirement(Requirement other) {
