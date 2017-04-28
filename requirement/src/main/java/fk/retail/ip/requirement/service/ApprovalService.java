@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.command.PayloadCreationHelper;
-import fk.retail.ip.requirement.internal.entities.AbstractEntity;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.entities.RequirementApprovalTransition;
 import fk.retail.ip.requirement.internal.enums.FdpRequirementEventType;

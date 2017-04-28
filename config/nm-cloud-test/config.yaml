@@ -6,7 +6,7 @@ dataSource:
   # the password
   password: caiP5yaa
   # the JDBC URL
-  url: jdbc:mysql://10.32.225.159/erp_inv_db_test
+  url: jdbc:mysql://10.32.225.159/erp_inv_db_test?rewriteBatchedStatements=true
   # any properties specific to your JDBC driver:
   properties:
     charSet: UTF-8
@@ -77,11 +77,16 @@ server:
       archivedFileCount: 2
       maxFileSize: 500MB
 
+
 zuluConfiguration:
   url: http://10.47.1.8:31200
   viewPath: "/views"
   clientId: "retail.rp"
   maxBatchSize: 30
+
+sslClientConfiguration:
+  url: http://10.85.52.106
+  viewPath: "/supplier_selection"
 
 fdpConfiguration:
   url: http://10.47.2.122:28223/ingestion/objects
@@ -92,9 +97,11 @@ fdpConfiguration:
   requirementEntitySchemaVersion: "3.0"
   requirementEventSchemaVersion: "2.0"
 
-sslClientConfiguration:
-  url: http://10.85.52.106
-  viewPath: "/supplier_selection"
+procClientConfiguration:
+  url: http://10.85.52.17
+  viewPath: "/requirements"
+  callbackUrl: http://10.85.110.102:32000/v1/requirement/callback/
+  requirementQueueName: proc_b2b_production
 
 clientConfiguration:
   timeout: 80000ms
@@ -111,10 +118,13 @@ clientConfiguration:
   gzipEnabledForRequests: false
   chunkedEncodingEnabled: false
 
-procClientConfiguration:
-  url: http://10.85.52.17
-  viewPath: "/requirements"
-  callbackUrl: http://10.85.110.102:32000/v1/requirement/callback/
-  requirementQueueName: proc_b2b_production
+triggerRequirementConfiguration:
+  url: http://10.85.53.212/v1/requirement
+  projectionQueueName: retail_rp_internal_projection
+  fetchDataBatchSize: 10000
+  createReqBatchSize: 10
 
-
+d42Configuration:
+  accessKey: "EKBK5XNIHLM7E3290RBX"
+  secretKey: "QGXi9BkrIArIb255tHRFR7trEcPSvxBi3X0LsBwP"
+  url: "http://10.47.2.2"
