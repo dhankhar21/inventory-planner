@@ -44,11 +44,8 @@ import fk.retail.ip.ssl.client.SslClient;
 import fk.retail.ip.ssl.model.SupplierSelectionRequest;
 import fk.retail.ip.ssl.model.SupplierSelectionResponse;
 import fk.retail.ip.ssl.model.SupplierView;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.MultiKeyMap;
@@ -199,6 +196,9 @@ public class CalculateRequirementCommand {
             });
         }
         //save
+        allRequirements.forEach(item -> {
+            item.setId(UUID.randomUUID().toString());
+        });
         requirementRepository.persist(allRequirements);
 
         //Add PROJECTION_CREATED events to fdp request
