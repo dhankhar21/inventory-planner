@@ -10,7 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-
+import java.util.Date;
 
 
 /**
@@ -103,6 +103,29 @@ public class Requirement {
     public Requirement(String id) {
         this.id = id;
     }
+    private Integer poId;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Date createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Date updatedAt;
+
+    @NotNull
+    @Version
+    private Long version;
+
+    @PrePersist
+    private void beforePersist() {
+        createdAt = new Date();
+        updatedAt = new Date();
+    }
+
+    @PreUpdate
+    private void beforeUpdate() {
+        updatedAt = new Date();
+    }
+
 
     public Requirement(Requirement other) {
         fsn = other.fsn;
@@ -119,6 +142,7 @@ public class Requirement {
         enabled = other.enabled;
         current = other.current;
         requirementSnapshot = other.requirementSnapshot;
+        poId = other.poId;
 
         //TODO: legacy code
         projectionId = other.projectionId;
@@ -128,5 +152,18 @@ public class Requirement {
 
     public long getGroup() {
         return this.requirementSnapshot.getGroup().getId();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof Requirement) {
+            return ((Requirement) other).getId().equals(id);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
     }
 }

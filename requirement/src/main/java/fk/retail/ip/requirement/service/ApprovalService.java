@@ -15,10 +15,8 @@ import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.RequirementApprovalTransitionRepository;
 import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.internal.repository.RequirementRepository;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -96,6 +94,7 @@ public class ApprovalService<E> {
             for (Requirement requirement : requirements) {
                 String toState = requirementToTargetStateMap.get(requirement.getId());
                 boolean isIPCReviewState = RequirementApprovalState.IPC_REVIEW.toString().equals(toState);
+                boolean isBizFinReviewState = RequirementApprovalState.BIZFIN_REVIEW.toString().equals(toState);
                 String cdoState = RequirementApprovalState.CDO_REVIEW.toString();
                 Optional<Requirement> toStateEntity = allEnabledRequirements.stream().filter(e -> e.getFsn().equals(requirement.getFsn()) && e.getWarehouse().equals(requirement.getWarehouse()) && e.getState().equals(toState)).findFirst();
                 RequirementChangeRequest requirementChangeRequest = new RequirementChangeRequest();
@@ -105,7 +104,8 @@ public class ApprovalService<E> {
                     log.info("Adding APPROVE events to fdp request");
                     requirementChangeMaps.add(PayloadCreationHelper.createChangeMap(OverrideKey.STATE.toString(), fromState, toState, FdpRequirementEventType.APPROVE.toString(), "Moved to next state", userId));
                     if (toStateEntity.isPresent()) {
-                        toStateEntity.get().setQuantity(requirement.getQuantity());
+                        if(!isBizFinReviewState)
+                            toStateEntity.get().setQuantity(requirement.getQuantity());
                         if (isIPCReviewState) {
                             Optional<Requirement> cdoStateEntity = allEnabledRequirements.stream().filter(e -> e.getFsn().equals(requirement.getFsn()) && e.getWarehouse().equals(requirement.getWarehouse()) && e.getState().equals(cdoState)).findFirst();
                             toStateEntity.get().setQuantity(cdoStateEntity.get().getQuantity());
@@ -124,10 +124,13 @@ public class ApprovalService<E> {
                             Optional<Requirement> cdoStateEntity = allEnabledRequirements.stream().filter(e -> e.getFsn().equals(requirement.getFsn()) && e.getWarehouse().equals(requirement.getWarehouse()) && e.getState().equals(cdoState)).findFirst();
                             newEntity.setQuantity(cdoStateEntity.get().getQuantity());
                         }
+                        if (isBizFinReviewState)
+                            newEntity.setQuantity(-1);
                         newEntity.setState(toState);
                         newEntity.setCreatedBy(userId);
                         newEntity.setPreviousStateId(requirement.getId());
                         newEntity.setCurrent(true);
+                        newEntity.setId(UUID.randomUUID().toString());
                         requirementRepository.persist(newEntity);
                         requirement.setCurrent(false);
                         requirementChangeRequest.setRequirement(newEntity);

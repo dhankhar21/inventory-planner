@@ -64,12 +64,12 @@ public class ProposedUploadCommandTest {
         Map<String, Requirement> requirementMap = requirements.stream().collect
                 (Collectors.toMap(Requirement::getId, Function.identity()));
 
-        Assert.assertEquals(20, (int)requirementMap.get((long)1).getQuantity());
+        Assert.assertEquals(20, (int)requirementMap.get("1").getQuantity());
         Assert.assertEquals("{\"quantityOverrideComment\":\"test_ipc\"}",
-                requirementMap.get((long)1).getOverrideComment());
-        Assert.assertEquals(100, (int)requirementMap.get((long)2).getQuantity());
-        Assert.assertEquals(100, (int)requirementMap.get((long)3).getQuantity());
-        Assert.assertEquals(0, (int)requirementMap.get((long)4).getQuantity());
+                requirementMap.get("1").getOverrideComment());
+        Assert.assertEquals(100, (int)requirementMap.get("2").getQuantity());
+        Assert.assertEquals(100, (int)requirementMap.get("3").getQuantity());
+        Assert.assertEquals(0, (int)requirementMap.get("4").getQuantity());
 
         Assert.assertEquals(Constants.QUANTITY_OVERRIDE_COMMENT_IS_MISSING,
                 uploadOverrideFailureLineItems.get(0).getFailureReason());

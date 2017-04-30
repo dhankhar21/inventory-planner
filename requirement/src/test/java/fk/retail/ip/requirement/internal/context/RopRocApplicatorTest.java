@@ -10,6 +10,7 @@ import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.entities.RequirementSnapshot;
 import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.PolicyType;
+import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.TestHelper;
 
 import java.util.ArrayList;
@@ -193,6 +194,7 @@ public class RopRocApplicatorTest {
 
         //error state should be ignored
         requirement1.setQuantity(0);
+        requirement1.setState(RequirementApprovalState.ERROR.toString());
         requirement1.setState(Constants.ERROR_STATE);
         requirementChangeRequestList = new ArrayList<>();
         ropRocApplicator.applyPolicies("fsn1", Lists.newArrayList(requirement1), policyMap, forecastContext, onHandQuantityContext, requirementChangeRequestList);

@@ -39,10 +39,20 @@ public class JPARequirementRepository extends SimpleJpaGenericRepository<Require
     }
 
     @Override
-    public List<Requirement> findRequirementByIds(List<Long> requirementIds) {
+    public List<Requirement> findRequirementByIds(List<String> requirementIds) {
         //todo: now we find requirements by projecion_id(at fsn level. need to think abt it)
         TypedQuery<Requirement> query = getEntityManager().createNamedQuery("findRequirementByIds", Requirement.class);
         query.setParameter("ids", requirementIds);
+        List<Requirement> requirements = query.getResultList();
+        return requirements;
+    }
+
+    @Override
+    public List<Requirement> findActiveRequirementForState(List<String> requirementIds, String state) {
+        TypedQuery<Requirement> query = getEntityManager().
+                createNamedQuery("findActiveRequirementForState", Requirement.class);
+        query.setParameter("ids", requirementIds);
+        query.setParameter("state", state);
         List<Requirement> requirements = query.getResultList();
         return requirements;
     }

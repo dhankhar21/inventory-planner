@@ -65,12 +65,12 @@ public class BizFinReviewUploadCommandTest {
                 (Collectors.toMap(Requirement::getId, Function.identity()));
 
         Assert.assertEquals(1, uploadOverrideFailureLineItems.size());
-        Assert.assertEquals(20, (int)requirementMap.get((long)1).getQuantity());
-        Assert.assertEquals("{\"quantityOverrideComment\":\"test_bizfin\"}", requirementMap.get((long)1).getOverrideComment());
-        Assert.assertEquals(100, (int)requirementMap.get((long)2).getQuantity());
-        Assert.assertEquals("{\"quantityOverrideComment\":\"test_bizfin\"}", requirementMap.get((long)3).getOverrideComment());
-        Assert.assertEquals(100, (int)requirementMap.get((long)3).getQuantity());
-        Assert.assertEquals(100, (int)requirementMap.get((long)4).getQuantity());
+        Assert.assertEquals(20, (int)requirementMap.get("1").getQuantity());
+        Assert.assertEquals("{\"quantityOverrideComment\":\"test_bizfin\"}", requirementMap.get("1").getOverrideComment());
+        Assert.assertEquals(100, (int)requirementMap.get("2").getQuantity());
+        Assert.assertEquals("{\"quantityOverrideComment\":\"test_bizfin\"}", requirementMap.get("3").getOverrideComment());
+        Assert.assertEquals(100, (int)requirementMap.get("3").getQuantity());
+        Assert.assertEquals(100, (int)requirementMap.get("4").getQuantity());
 
         Assert.assertEquals(OverrideKey.QUANTITY.toString(), argumentCaptor.getValue().get(0).getAttribute());
         Assert.assertEquals("100.0", argumentCaptor.getValue().get(0).getOldValue());

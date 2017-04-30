@@ -37,7 +37,7 @@ public class EventLogger {
                 requirementEventLog.setOldValue(changeMap.getOldValue());
                 requirementEventLog.setReason(changeMap.getReason());
                 requirementEventLog.setTimestamp(getCurrentTimestamp());
-                requirementEventLog.setEntityId(String.valueOf(requirement.getId()));
+                requirementEventLog.setEntityId(requirement.getId());
                 requirementEventLogs.add(requirementEventLog);
                 requirementEventLog.setEventType(eventType.toString());
             });
