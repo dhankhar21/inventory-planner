@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by agarwal.vaibhav on 19/04/17.
@@ -31,6 +32,7 @@ public class EventLogger {
             Requirement requirement = item.getRequirement();
             requirementChangeMaps.forEach(changeMap -> {
                 RequirementEventLog requirementEventLog = new RequirementEventLog();
+                requirementEventLog.setId(UUID.randomUUID().toString());
                 requirementEventLog.setUserId(changeMap.getUser());
                 requirementEventLog.setAttribute(changeMap.getAttribute());
                 requirementEventLog.setNewValue(changeMap.getNewValue());
