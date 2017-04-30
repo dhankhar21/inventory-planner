@@ -61,7 +61,7 @@ public class CDOReviewUploadCommandTest {
 
         Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
 
-        Map<Long, Requirement> requirementMap = requirements.stream().collect
+        Map<String, Requirement> requirementMap = requirements.stream().collect
                 (Collectors.toMap(Requirement::getId, Function.identity()));
 
         Assert.assertEquals(20, (int)requirementMap.get((long)1).getQuantity());
@@ -146,7 +146,7 @@ public class CDOReviewUploadCommandTest {
                 "",
                 "Daily planning"
         );
-        requirement.setId((long) 1);
+        requirement.setId("1");
         requirements.add(requirement);
 
         requirement = TestHelper.getRequirement(
@@ -164,7 +164,7 @@ public class CDOReviewUploadCommandTest {
                 "",
                 "Daily planning"
         );
-        requirement.setId((long) 2);
+        requirement.setId("2");
         requirements.add(requirement);
 
         requirement = TestHelper.getRequirement(
@@ -182,7 +182,7 @@ public class CDOReviewUploadCommandTest {
                 "",
                 "Daily planning"
         );
-        requirement.setId((long) 3);
+        requirement.setId("3");
         requirements.add(requirement);
 
         requirement = TestHelper.getRequirement(
@@ -200,7 +200,7 @@ public class CDOReviewUploadCommandTest {
                 "",
                 "Daily planning"
         );
-        requirement.setId((long) 4);
+        requirement.setId("4");
         requirements.add(requirement);
 
         requirement = TestHelper.getRequirement(
@@ -218,7 +218,7 @@ public class CDOReviewUploadCommandTest {
                 "",
                 "Daily planning"
         );
-        requirement.setId((long) 5);
+        requirement.setId("5");
         requirements.add(requirement);
 
         requirement = TestHelper.getRequirement(
@@ -236,7 +236,7 @@ public class CDOReviewUploadCommandTest {
                 "",
                 "Daily planning"
         );
-        requirement.setId((long) 6);
+        requirement.setId("6");
         requirements.add(requirement);
 
         return requirements;

@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 
 @Slf4j
-public class ApprovalService<E extends AbstractEntity> {
+public class ApprovalService<E> {
 
     public void changeState(List<E> items,
                             String fromState,
@@ -50,12 +50,13 @@ public class ApprovalService<E extends AbstractEntity> {
         for (E item : items) {
             String currentState = getter.apply(item);
             if (!currentState.equals(fromState)) {
-                throw new IllegalStateException("Entity[id=" + item.getId() + "] is not in " + fromState + " state");
+                /*TODO: add id here*/
+                throw new IllegalStateException("Entity[id=" + "" + "] is not in " + fromState + " state");
             }
         }
     }
 
-    public interface StageChangeAction<E extends AbstractEntity> {
+    public interface StageChangeAction<E> {
 
         void execute(String userId,
                      String fromState,
@@ -87,7 +88,7 @@ public class ApprovalService<E extends AbstractEntity> {
         public void execute(String userId, String fromState, boolean forward, List<Requirement> requirements) {
             Map<Long, String> groupToTargetState = getGroupToTargetStateMap(fromState, forward);
             log.info("Constructed map for group to Target state " + groupToTargetState);
-            Map<Long, String> requirementToTargetStateMap = getRequirementToTargetStateMap(groupToTargetState, requirements);
+            Map<String, String> requirementToTargetStateMap = getRequirementToTargetStateMap(groupToTargetState, requirements);
             Set<String> fsns = requirements.stream().map(Requirement::getFsn).collect(Collectors.toSet());
             List<RequirementChangeRequest> requirementChangeRequestList = Lists.newArrayList();
             List<Requirement> allEnabledRequirements = requirementRepository.find(fsns, true);
@@ -162,7 +163,7 @@ public class ApprovalService<E extends AbstractEntity> {
             return transitionList.stream().collect(Collectors.toMap(RequirementApprovalTransition::getGroupId, RequirementApprovalTransition::getToState));
         }
 
-        private Map<Long,String> getRequirementToTargetStateMap(Map<Long, String> groupToTargetState, List<Requirement> requirements) {
+        private Map<String,String> getRequirementToTargetStateMap(Map<Long, String> groupToTargetState, List<Requirement> requirements) {
             return requirements.stream().collect(Collectors.toMap(requirement -> requirement.getId(), requirement -> groupToTargetState.get(requirement.getGroup())!= null ? groupToTargetState.get(requirement.getGroup()):groupToTargetState.get(Constants.DEFAULT_TRANSITION_GROUP)));
         }
 

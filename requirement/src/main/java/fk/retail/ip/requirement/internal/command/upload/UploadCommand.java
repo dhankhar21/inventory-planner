@@ -54,7 +54,7 @@ public abstract class UploadCommand {
             String userId
     ) {
 
-        Map<Long, Requirement> requirementMap = requirements.stream().
+        Map<String, Requirement> requirementMap = requirements.stream().
                 collect(Collectors.toMap(Requirement::getId, Function.identity()));
 
         ArrayList<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = new ArrayList<>();
@@ -92,7 +92,7 @@ public abstract class UploadCommand {
                         break;
 
                     case UPDATE:
-                        Long requirementId = row.getRequirementId();
+                        String requirementId = row.getRequirementId();
 
                         if (requirementMap.containsKey(requirementId)) {
                             //Add IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp request
@@ -183,8 +183,8 @@ public abstract class UploadCommand {
             }
 
         //Push IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp
-        log.debug("Pushing IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp");
-        fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
+        //log.debug("Pushing IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp");
+        //fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
         EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
         eventLogger.insertEvent(requirementChangeRequestList, EventType.OVERRIDE);
 

@@ -1,7 +1,9 @@
 package fk.retail.ip.requirement.internal.entities;
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 import javax.persistence.*;
@@ -17,16 +19,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
 @XmlRootElement
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 //todo: cleanup
 @Table(name = "projection_states")
 //@Table(name = "REQUIREMENT")
-public class Requirement extends AbstractEntity {
+public class Requirement {
 
     private static final long serialVersionUID = 1L;
 
     //todo : add this field in projection_states in old db
+
+    @Id
+    private String id;
     @NotNull
     private String fsn;
 
@@ -81,7 +87,7 @@ public class Requirement extends AbstractEntity {
     //todo: cleanup (fields for backward compatibilty)
     //TODO: legacy code
     @Column(name = "prev_state_id")
-    private Long previousStateId;
+    private String previousStateId;
 
     //TODO: legacy code
     @Column(name = "pan_india")
@@ -94,7 +100,7 @@ public class Requirement extends AbstractEntity {
     //todo:cleanup
     private String mrpCurrency;
 
-    public Requirement(Long id) {
+    public Requirement(String id) {
         this.id = id;
     }
 
