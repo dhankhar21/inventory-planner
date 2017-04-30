@@ -1,7 +1,9 @@
 package fk.retail.ip.requirement.internal.entities;
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
 
@@ -22,8 +24,9 @@ import java.util.Date;
 
 @Entity
 @XmlRootElement
-@Data
 @NoArgsConstructor
+@Getter
+@Setter
 //todo: cleanup
 @Table(name = "projection_states")
 //@Table(name = "REQUIREMENT")
@@ -158,5 +161,18 @@ public class Requirement {
 
     public long getGroup() {
         return this.requirementSnapshot.getGroup().getId();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof Requirement) {
+            return ((Requirement) other).getId().equals(id);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
     }
 }
