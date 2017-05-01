@@ -49,12 +49,13 @@ public class JPARequirementRepository extends SimpleJpaGenericRepository<Require
 
     @Override
     public List<Requirement> findActiveRequirementForState(List<String> requirementIds, String state) {
-        TypedQuery<Requirement> query = getEntityManager().
-                createNamedQuery("findActiveRequirementForState", Requirement.class);
-        query.setParameter("ids", requirementIds);
-        query.setParameter("state", state);
-        List<Requirement> requirements = query.getResultList();
-        return requirements;
+//        TypedQuery<Requirement> query = getEntityManager().
+//                createNamedQuery("findActiveRequirementForState", Requirement.class);
+//        query.setParameter("ids", requirementIds);
+//        query.setParameter("state", state);
+//        List<Requirement> requirements = query.getResultList();
+        TypedQuery<Requirement> query = getCriteriaQuery(state, requirementIds);
+        return query.getResultList();
     }
 
     @Override
@@ -123,6 +124,27 @@ public class JPARequirementRepository extends SimpleJpaGenericRepository<Require
         TypedQuery<Requirement> query = entityManager.createQuery(select);
         return query;
 
+    }
+
+    private TypedQuery<Requirement> getCriteriaQuery(String requirementState, List<String> requirementIds) {
+        EntityManager entityManager = getEntityManager();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Requirement> criteriaQuery = criteriaBuilder.createQuery(Requirement.class);
+        Root<Requirement> requirementRoot = criteriaQuery.from(Requirement.class);
+        requirementRoot.fetch("requirementSnapshot");
+        CriteriaQuery<Requirement> select = criteriaQuery.select(requirementRoot);
+        List<Predicate> predicates = Lists.newArrayList();
+        Predicate predicate = criteriaBuilder.equal(requirementRoot.get("current"), 1);
+        predicates.add(predicate);
+        predicate = criteriaBuilder.equal(requirementRoot.get("state"), requirementState);
+        predicates.add(predicate);
+        if (!requirementIds.isEmpty()) {
+            predicate = criteriaBuilder.isTrue(requirementRoot.get("id").in(requirementIds));
+            predicates.add(predicate);
+        }
+        select.where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
+        TypedQuery<Requirement> query = entityManager.createQuery(select);
+        return query;
     }
 
     //TODO: legacy code
