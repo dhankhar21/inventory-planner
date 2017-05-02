@@ -16,10 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -91,6 +89,7 @@ public class PushToProcCommand {
         List<Requirement> pushToProcRequirements = Lists.newArrayList();
         requirements.forEach(requirement -> {
             Requirement newEntity = new Requirement(requirement);
+            newEntity.setId(UUID.randomUUID().toString());
             requirement.setCurrent(false);
             newEntity.setCreatedBy(userId);
             newEntity.setPreviousStateId(requirement.getId());
@@ -134,6 +133,7 @@ public class PushToProcCommand {
     public int pushToProc(List<Requirement> requirements, String userId) {
         List<Requirement> pushToProcRequirements = createPushToProcRequirement(requirements,userId);
         Map<String, PushToProcRequest> allRequirements = getPushToProcRequest(pushToProcRequirements);
+        pushToProcClient.pushToProc(allRequirements);
         pushToProcClient.pushToProc(allRequirements);
         return allRequirements.size();
     }

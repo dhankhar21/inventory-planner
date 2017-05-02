@@ -2,7 +2,6 @@ package fk.retail.ip.requirement.internal.command.upload;
 
 
 import com.google.common.collect.Lists;
-import com.sun.org.apache.regexp.internal.RE;
 import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.command.EventLogger;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
