@@ -6,7 +6,6 @@ import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.command.EventLogger;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.command.PayloadCreationHelper;
-import fk.retail.ip.requirement.internal.context.OnHandQuantityContext;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.enums.*;
 import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
@@ -181,7 +180,7 @@ public abstract class UploadCommand {
                 }
             }
 
-//        Push IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp
+        //Push IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp
         log.debug("Pushing IPC_QUANTITY_OVERRIDE, CDO_QUANTITY_OVERRIDE, CDO_APP_OVERRIDE, CDO_SLA_OVERRIDE, CDO_SUPPLIER_OVERRIDE events to fdp");
         fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
         EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
@@ -221,6 +220,5 @@ public abstract class UploadCommand {
     protected boolean isEmptyString(String comment) {
         return comment == null || comment.trim().isEmpty() ? true : false;
     }
-
 
 }
