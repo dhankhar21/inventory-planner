@@ -49,7 +49,7 @@ public class ApprovalService<E> {
             String currentState = getter.apply(item);
             if (!currentState.equals(fromState)) {
                 /*TODO: add id here*/
-                throw new IllegalStateException("Entity[id=" + "" + "] is not in " + fromState + " state");
+                throw new IllegalStateException("Entity[id=" + item + "] is not in " + fromState + " state");
             }
         }
     }
