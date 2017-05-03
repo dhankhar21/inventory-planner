@@ -32,13 +32,11 @@ public class EventLogger {
             Requirement requirement = item.getRequirement();
             requirementChangeMaps.forEach(changeMap -> {
                 RequirementEventLog requirementEventLog = new RequirementEventLog();
-                requirementEventLog.setId(UUID.randomUUID().toString());
                 requirementEventLog.setUserId(changeMap.getUser());
                 requirementEventLog.setAttribute(changeMap.getAttribute());
                 requirementEventLog.setNewValue(changeMap.getNewValue());
                 requirementEventLog.setOldValue(changeMap.getOldValue());
                 requirementEventLog.setReason(changeMap.getReason());
-                requirementEventLog.setTimestamp(getCurrentTimestamp());
                 requirementEventLog.setEntityId(requirement.getId());
                 requirementEventLogs.add(requirementEventLog);
                 requirementEventLog.setEventType(eventType.toString());

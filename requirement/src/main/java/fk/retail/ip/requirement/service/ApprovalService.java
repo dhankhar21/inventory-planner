@@ -113,7 +113,6 @@ public class ApprovalService<E> {
                         toStateEntity.get().setSupplier(requirement.getSupplier());
                         toStateEntity.get().setApp(requirement.getApp());
                         toStateEntity.get().setSla(requirement.getSla());
-                        toStateEntity.get().setPreviousStateId(requirement.getId());
                         toStateEntity.get().setCreatedBy(userId);
                         toStateEntity.get().setCurrent(true);
                         requirement.setCurrent(false);
@@ -128,9 +127,7 @@ public class ApprovalService<E> {
                             newEntity.setQuantity(-1);
                         newEntity.setState(toState);
                         newEntity.setCreatedBy(userId);
-                        newEntity.setPreviousStateId(requirement.getId());
                         newEntity.setCurrent(true);
-                        newEntity.setId(UUID.randomUUID().toString());
                         requirementRepository.persist(newEntity);
                         requirement.setCurrent(false);
                         requirementChangeRequest.setRequirement(newEntity);

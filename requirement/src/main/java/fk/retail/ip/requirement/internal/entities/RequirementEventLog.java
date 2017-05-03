@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Created by agarwal.vaibhav on 18/04/17.
@@ -22,7 +23,14 @@ public class RequirementEventLog{
     private String newValue;
     private String reason;
     private String userId;
-    private String timestamp;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timestamp;
     private String eventType;
+
+    @PrePersist
+    private void beforePersist() {
+        timestamp = new Date();
+        id = UUID.randomUUID().toString().replaceAll("-", "");
+    }
 
 }

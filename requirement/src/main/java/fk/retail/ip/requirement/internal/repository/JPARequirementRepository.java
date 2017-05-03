@@ -8,10 +8,8 @@ import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.sp.common.extensions.jpa.Page;
 import fk.sp.common.extensions.jpa.PageRequest;
 import fk.sp.common.extensions.jpa.SimpleJpaGenericRepository;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,6 +47,9 @@ public class JPARequirementRepository extends SimpleJpaGenericRepository<Require
 
     @Override
     public List<Requirement> findActiveRequirementForState(List<String> requirementIds, String state) {
+        if (requirementIds.isEmpty()) {
+            return new ArrayList<>();
+        }
         TypedQuery<Requirement> query = getCriteriaQuery(state, requirementIds);
         return query.getResultList();
     }
@@ -69,8 +70,6 @@ public class JPARequirementRepository extends SimpleJpaGenericRepository<Require
         List<Requirement> requirements = query.getResultList();
         return requirements;
     }
-
-
 
 
     public List<Requirement> findRequirements(List<Long> projectionIds, String requirementState, List<String> fsns , int pageNumber, int pageSize) {
@@ -133,10 +132,8 @@ public class JPARequirementRepository extends SimpleJpaGenericRepository<Require
         predicates.add(predicate);
         predicate = criteriaBuilder.equal(requirementRoot.get("state"), requirementState);
         predicates.add(predicate);
-        if (!requirementIds.isEmpty()) {
-            predicate = criteriaBuilder.isTrue(requirementRoot.get("id").in(requirementIds));
-            predicates.add(predicate);
-        }
+        predicate = criteriaBuilder.isTrue(requirementRoot.get("id").in(requirementIds));
+        predicates.add(predicate);
         select.where(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
         TypedQuery<Requirement> query = entityManager.createQuery(select);
         return query;

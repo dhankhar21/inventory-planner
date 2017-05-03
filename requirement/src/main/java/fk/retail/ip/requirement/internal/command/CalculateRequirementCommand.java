@@ -219,7 +219,6 @@ public class CalculateRequirementCommand {
     private Requirement getErredRequirement(String fsn, String errorMessage) {
         Requirement requirement = new Requirement();
         requirement.setFsn(fsn);
-        requirement.setId(UUID.randomUUID().toString());
         requirement.setState(RequirementApprovalState.ERROR.toString());
         requirement.setWarehouse(Constants.NOT_APPLICABLE);
         requirement.setOverrideComment(errorMessage);
@@ -314,7 +313,6 @@ public class CalculateRequirementCommand {
 
     private Requirement getRequirement(String fsn, String warehouse, Group group) {
         Requirement requirement = new Requirement();
-        requirement.setId(UUID.randomUUID().toString());
         requirement.setFsn(fsn);
         requirement.setWarehouse(warehouse);
         requirement.setState(RequirementApprovalState.PRE_PROPOSED.toString());

@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 
 import javax.persistence.*;
@@ -11,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
+import java.util.UUID;
 
 
 /**
@@ -84,11 +87,6 @@ public class Requirement {
     @JoinColumn(name = "requirement_snapshot_id")
     private RequirementSnapshot requirementSnapshot;
 
-    //todo: cleanup (fields for backward compatibilty)
-    //TODO: legacy code
-    @Column(name = "prev_state_id")
-    private String previousStateId;
-
     //TODO: legacy code
     @Column(name = "pan_india")
     private Integer panIndiaQuantity;
@@ -119,6 +117,7 @@ public class Requirement {
     private void beforePersist() {
         createdAt = new Date();
         updatedAt = new Date();
+        id = UUID.randomUUID().toString().replaceAll("-", "");
     }
 
     @PreUpdate
@@ -155,15 +154,64 @@ public class Requirement {
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (other instanceof Requirement) {
-            return ((Requirement) other).getId().equals(id);
-        }
-        return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Requirement that = (Requirement) o;
+
+        return new EqualsBuilder()
+                .append(quantity, that.quantity)
+                .append(international, that.international)
+                .append(enabled, that.enabled)
+                .append(current, that.current)
+                .append(id, that.id)
+                .append(fsn, that.fsn)
+                .append(warehouse, that.warehouse)
+                .append(supplier, that.supplier)
+                .append(mrp, that.mrp)
+                .append(app, that.app)
+                .append(currency, that.currency)
+                .append(sla, that.sla)
+                .append(state, that.state)
+                .append(procType, that.procType)
+                .append(overrideComment, that.overrideComment)
+                .append(createdBy, that.createdBy)
+                .append(updatedBy, that.updatedBy)
+                .append(sslId, that.sslId)
+                .append(panIndiaQuantity, that.panIndiaQuantity)
+                .append(projectionId, that.projectionId)
+                .append(mrpCurrency, that.mrpCurrency)
+                .append(poId, that.poId)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return this.id.hashCode();
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(fsn)
+                .append(warehouse)
+                .append(quantity)
+                .append(supplier)
+                .append(mrp)
+                .append(app)
+                .append(currency)
+                .append(sla)
+                .append(international)
+                .append(state)
+                .append(procType)
+                .append(enabled)
+                .append(current)
+                .append(overrideComment)
+                .append(createdBy)
+                .append(updatedBy)
+                .append(sslId)
+                .append(panIndiaQuantity)
+                .append(projectionId)
+                .append(mrpCurrency)
+                .append(poId)
+                .toHashCode();
     }
 }

@@ -89,10 +89,8 @@ public class PushToProcCommand {
         List<Requirement> pushToProcRequirements = Lists.newArrayList();
         requirements.forEach(requirement -> {
             Requirement newEntity = new Requirement(requirement);
-            newEntity.setId(UUID.randomUUID().toString());
             requirement.setCurrent(false);
             newEntity.setCreatedBy(userId);
-            newEntity.setPreviousStateId(requirement.getId());
             newEntity.setCurrent(true);
             String eventType;
             String reason;
