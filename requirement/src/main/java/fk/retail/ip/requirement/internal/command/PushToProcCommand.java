@@ -132,7 +132,6 @@ public class PushToProcCommand {
         List<Requirement> pushToProcRequirements = createPushToProcRequirement(requirements,userId);
         Map<String, PushToProcRequest> allRequirements = getPushToProcRequest(pushToProcRequirements);
         pushToProcClient.pushToProc(allRequirements);
-        pushToProcClient.pushToProc(allRequirements);
         return allRequirements.size();
     }
 }
