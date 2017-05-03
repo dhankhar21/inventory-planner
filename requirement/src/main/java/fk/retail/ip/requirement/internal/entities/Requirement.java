@@ -117,7 +117,7 @@ public class Requirement {
     private void beforePersist() {
         createdAt = new Date();
         updatedAt = new Date();
-        id = UUID.randomUUID().toString().replaceAll("-", "");
+        id = UUID.randomUUID().toString().replace("-", "");
     }
 
     @PreUpdate

@@ -30,7 +30,7 @@ public class RequirementEventLog{
     @PrePersist
     private void beforePersist() {
         timestamp = new Date();
-        id = UUID.randomUUID().toString().replaceAll("-", "");
+        id = UUID.randomUUID().toString().replace("-", "");
     }
 
 }
