@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import fk.retail.ip.core.enums.CellType;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
@@ -53,12 +55,26 @@ public class SpreadSheetReader {
                     }
                     DataFormatter formatter = new DataFormatter();
 
-                    if(headers.get(c).equals("CDO Price Override")) {
+                    if (CellType.getType(headers.get(c)) == 2) {
                         String value = formatter.formatCellValue(cell);
                         try {
                             values.put(headers.get(c), NumberFormat.getInstance().parse(value).doubleValue());
                         } catch (ParseException e) {
                             values.put(headers.get(c), cell.getStringCellValue());
+                        }
+
+                    } else if(CellType.getType(headers.get(c)) == 1) {
+                        String value = formatter.formatCellValue(cell);
+                        try {
+                            Double doubleValue = NumberFormat.getInstance().parse(value).doubleValue();
+                            Integer intValue = NumberFormat.getInstance().parse(value).intValue();
+                            if (doubleValue == Math.floor(doubleValue)) {
+                                values.put(headers.get(c), intValue);
+                            } else {
+                                values.put(headers.get(c), doubleValue);
+                            }
+                        } catch (ParseException e) {
+                            values.put(headers.get(c), value);
                         }
 
                     } else {
@@ -70,13 +86,14 @@ public class SpreadSheetReader {
                                 values.put(headers.get(c), Double.parseDouble(value));
                             }
                         } else {
-//                            String value = formatter.formatCellValue(cell);
-//                            try {
-//                                values.put(headers.get(c), NumberFormat.getInstance().parse(value).doubleValue());
-//                            } catch (ParseException e) {
-//                                values.put(headers.get(c), cell.getStringCellValue());
-//                            }
                             values.put(headers.get(c), cell.getStringCellValue());
+                        }
+                    }
+
+                    if (values.get(headers.get(c)) instanceof String) {
+                        String cellValue = values.get(headers.get(c)).toString();
+                        if (cellValue.isEmpty()) {
+                            values.put(headers.get(c), null);
                         }
                     }
 

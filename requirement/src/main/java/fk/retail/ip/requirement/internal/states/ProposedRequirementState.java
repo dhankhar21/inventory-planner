@@ -6,6 +6,7 @@ import fk.retail.ip.requirement.internal.command.download.DownloadProposedComman
 import fk.retail.ip.requirement.internal.command.upload.ProposedUploadCommand;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.model.RequirementDownloadLineItem;
+import fk.retail.ip.requirement.model.RequirementUploadLineItem;
 import fk.retail.ip.requirement.model.UploadOverrideFailureLineItem;
 import java.util.List;
 import javax.ws.rs.core.StreamingOutput;
@@ -26,7 +27,7 @@ public class ProposedRequirementState implements RequirementState {
 
     @Override
     public List<UploadOverrideFailureLineItem> upload(List<Requirement> requirements,
-                                                      List<RequirementDownloadLineItem> parsedJson,
+                                                      List<RequirementUploadLineItem> parsedJson,
                                                       String userId) {
         return uploadProposedCommandProvider.get().execute(parsedJson, requirements, userId);
     }
