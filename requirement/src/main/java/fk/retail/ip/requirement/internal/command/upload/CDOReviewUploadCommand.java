@@ -13,7 +13,6 @@ import fk.retail.ip.requirement.model.RequirementUploadLineItem;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 
-import java.util.DoubleSummaryStatistics;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -160,9 +159,6 @@ public class CDOReviewUploadCommand extends UploadCommand {
             validationComment = Constants.SLA_IS_NOT_INTEGER;
             return Optional.of(validationComment);
         }
-
-
-
     }
 
     private Map<String, Object> getOverriddenFields(
@@ -219,6 +215,5 @@ public class CDOReviewUploadCommand extends UploadCommand {
     private String convertToLineSeparatedComment(String firstString, String secondString) {
         return firstString.isEmpty() ? secondString : firstString + System.lineSeparator() + secondString;
     }
-
 
 }
