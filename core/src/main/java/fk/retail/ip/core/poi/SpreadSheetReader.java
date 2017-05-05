@@ -2,8 +2,6 @@ package fk.retail.ip.core.poi;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,32 +52,31 @@ public class SpreadSheetReader {
                         continue;
                     }
                     DataFormatter formatter = new DataFormatter();
+                    String value = formatter.formatCellValue(cell);
+                    value = removeUnnecessaryCharacters(value);
 
                     if (CellType.getType(headers.get(c)) == 2) {
-                        String value = formatter.formatCellValue(cell);
                         try {
-                            values.put(headers.get(c), NumberFormat.getInstance().parse(value).doubleValue());
-                        } catch (ParseException e) {
+                            values.put(headers.get(c), Double.parseDouble(value));
+                        } catch (NumberFormatException ex) {
                             values.put(headers.get(c), cell.getStringCellValue());
                         }
 
                     } else if(CellType.getType(headers.get(c)) == 1) {
-                        String value = formatter.formatCellValue(cell);
                         try {
-                            Double doubleValue = NumberFormat.getInstance().parse(value).doubleValue();
-                            Integer intValue = NumberFormat.getInstance().parse(value).intValue();
-                            if (doubleValue == Math.floor(doubleValue)) {
-                                values.put(headers.get(c), intValue);
-                            } else {
+                            Integer intValue = Integer.parseInt(value);
+                            values.put(headers.get(c), intValue);
+                        } catch (NumberFormatException e) {
+                            try {
+                                Double doubleValue = Double.parseDouble(value);
                                 values.put(headers.get(c), doubleValue);
+                            } catch (NumberFormatException ex) {
+                                values.put(headers.get(c), value);
                             }
-                        } catch (ParseException e) {
-                            values.put(headers.get(c), value);
                         }
 
                     } else {
                         if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                            String value = formatter.formatCellValue(cell);
                             try {
                                 values.put(headers.get(c), Long.parseLong(value));
                             } catch (NumberFormatException ex) {
@@ -112,5 +109,10 @@ public class SpreadSheetReader {
             }
         }
         return rows;
+    }
+
+    public String removeUnnecessaryCharacters(String value) {
+        value = value.trim();
+        return value.replace("\u00A0", "");
     }
 }

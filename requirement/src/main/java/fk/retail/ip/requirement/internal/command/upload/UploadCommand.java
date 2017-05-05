@@ -43,7 +43,7 @@ public abstract class UploadCommand {
         this.requirementEventLogRepository = requirementEventLogRepository;
     }
 
-    public List<UploadOverrideFailureLineItem> execute(
+    public UploadOverrideResult execute(
             List<RequirementUploadLineItem> requirementUploadLineItems,
             List<Requirement> requirements,
             String userId
@@ -55,6 +55,7 @@ public abstract class UploadCommand {
         ArrayList<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = new ArrayList<>();
         /*Row count has been made to initiliase to 1 to accommodate the headers in the excel*/
         int rowCount = 1;
+        int successfulRowCount = 0;
         List<RequirementChangeRequest> requirementChangeRequestList = Lists.newArrayList();
         for(RequirementUploadLineItem row : requirementUploadLineItems) {
             UploadOverrideFailureLineItem uploadOverrideFailureLineItem = new UploadOverrideFailureLineItem();
@@ -159,6 +160,7 @@ public abstract class UploadCommand {
                             }
 
                             requirement.setUpdatedBy(userId);
+                            successfulRowCount += 1;
 
                         } else {
                             uploadOverrideFailureLineItem.setFailureReason
@@ -183,8 +185,11 @@ public abstract class UploadCommand {
         fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
         EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
         eventLogger.insertEvent(requirementChangeRequestList, EventType.OVERRIDE);
+        UploadOverrideResult uploadOverrideResult = new UploadOverrideResult();
+        uploadOverrideResult.setSuccessfulRowCount(successfulRowCount);
+        uploadOverrideResult.setUploadOverrideFailureLineItemList(uploadOverrideFailureLineItems);
 
-        return uploadOverrideFailureLineItems;
+        return uploadOverrideResult;
     }
 
     private Optional<String> validateGenericColumns(String fsn, String warehouse){
@@ -221,7 +226,6 @@ public abstract class UploadCommand {
                     Constants.QUANTITY_IS_NOT_INTEGER;
             return Optional.of(validationComment);
         }
-
     }
 
     protected boolean isEmptyString(String comment) {

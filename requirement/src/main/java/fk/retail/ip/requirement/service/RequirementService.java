@@ -120,7 +120,7 @@ public class RequirementService {
         String objectKey = String.format("%s:%s:%s", timeStamp, userId, fileName);
         String contentType = formBody.getMediaType().toString();
 
-        //d42Client.put(BUCKET_NAME, objectKey, new ByteArrayInputStream(baos.toByteArray()), contentType);
+        d42Client.put(BUCKET_NAME, objectKey, new ByteArrayInputStream(baos.toByteArray()), contentType);
 
         SpreadSheetReader spreadSheetReader = new SpreadSheetReader();
         List<Map<String, Object>> parsedMappingList = spreadSheetReader.read(new ByteArrayInputStream(baos.toByteArray()));
@@ -155,12 +155,13 @@ public class RequirementService {
             } else {
                 RequirementState state = requirementStateFactory.getRequirementState(requirementState);
                 try {
-                    List<UploadOverrideFailureLineItem> uploadLineItems = state.upload(requirements, requirementUploadLineItems, userId);
-                    int successfulRowCount = requirementUploadLineItems.size() - uploadLineItems.size();
+                    UploadOverrideResult uploadOverrideResult = state.upload(requirements, requirementUploadLineItems, userId);
+
+                    List<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = uploadOverrideResult.getUploadOverrideFailureLineItemList();
                     UploadResponse uploadResponse = new UploadResponse();
-                    uploadResponse.setUploadOverrideFailureLineItems(uploadLineItems);
-                    uploadResponse.setSuccessfulRowCount(successfulRowCount);
-                    if (uploadLineItems.isEmpty()) {
+                    uploadResponse.setUploadOverrideFailureLineItems(uploadOverrideFailureLineItems);
+                    uploadResponse.setSuccessfulRowCount(uploadOverrideResult.getSuccessfulRowCount());
+                    if (uploadOverrideFailureLineItems.isEmpty()) {
                         uploadResponse.setStatus(OverrideStatus.SUCCESS.toString());
                     } else {
                         uploadResponse.setStatus(OverrideStatus.FAILURE.toString());

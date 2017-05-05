@@ -58,7 +58,8 @@ public class BizFinReviewUploadCommandTest {
     public void uploadTest() throws IOException {
         List<RequirementUploadLineItem> requirementUploadLineItems = TestHelper.getBizfinReviewUploadLineItem();
         List<Requirement> requirements = getRequirements();
-        List<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = bizFinReviewUploadCommand.execute(requirementUploadLineItems, requirements, "");
+        List<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = bizFinReviewUploadCommand.
+                execute(requirementUploadLineItems, requirements, "").getUploadOverrideFailureLineItemList();
 
         Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
 

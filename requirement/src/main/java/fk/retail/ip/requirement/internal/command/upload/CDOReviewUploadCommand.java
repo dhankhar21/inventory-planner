@@ -104,7 +104,7 @@ public class CDOReviewUploadCommand extends UploadCommand {
             return Optional.empty();
         }
 
-        if (bdProposedApp instanceof Double || bdProposedApp instanceof Integer) {
+        if (bdProposedApp instanceof Double) {
             if ((double)bdProposedApp <= 0) {
                 validationComment = isEmptyString(appOverrideComment) ?
                         Constants.INVALID_APP_WITHOUT_COMMENT :
@@ -121,7 +121,6 @@ public class CDOReviewUploadCommand extends UploadCommand {
                     Constants.APP_IS_NOT_VALID;
             return Optional.of(validationComment);
         }
-
 
     }
 

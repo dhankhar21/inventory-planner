@@ -59,7 +59,7 @@ public class ProposedUploadCommandTest {
                 TestHelper.getProposedRequirementUploadLineItems();
         List<Requirement> requirements = getRequirements();
         List<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = uploadProposedCommand
-                .execute(requirementUploadLineItems, requirements, "dummyUser");
+                .execute(requirementUploadLineItems, requirements, "dummyUser").getUploadOverrideFailureLineItemList();
 
         Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
 

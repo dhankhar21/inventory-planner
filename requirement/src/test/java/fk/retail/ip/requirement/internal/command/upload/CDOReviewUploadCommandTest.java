@@ -58,7 +58,8 @@ public class CDOReviewUploadCommandTest {
         List<RequirementUploadLineItem> requirementUploadLineItems =
                 TestHelper.getCdoReviewRequirementUploadLineItem();
         List<Requirement> requirements = getRequirements();
-        List<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = CDOReviewUploadCommand.execute(requirementUploadLineItems ,requirements, "");
+        List<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = CDOReviewUploadCommand.
+                execute(requirementUploadLineItems ,requirements, "").getUploadOverrideFailureLineItemList();
 
         Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
 
