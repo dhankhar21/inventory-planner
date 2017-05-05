@@ -55,6 +55,8 @@ public abstract class UploadCommand {
         ArrayList<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = new ArrayList<>();
         /*Row count has been made to initiliase to 1 to accommodate the headers in the excel*/
         int rowCount = 1;
+
+        /*Stores the count for the number of rows actually updated upon override*/
         int successfulRowCount = 0;
         List<RequirementChangeRequest> requirementChangeRequestList = Lists.newArrayList();
         for(RequirementUploadLineItem row : requirementUploadLineItems) {

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import fk.retail.ip.core.enums.CellType;
+import fk.retail.ip.core.enums.ColumnType;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
@@ -55,14 +56,14 @@ public class SpreadSheetReader {
                     String value = formatter.formatCellValue(cell);
                     value = removeUnnecessaryCharacters(value);
 
-                    if (CellType.getType(headers.get(c)) == 2) {
+                    if (CellType.getType(headers.get(c)) == ColumnType.DOUBLE) {
                         try {
                             values.put(headers.get(c), Double.parseDouble(value));
                         } catch (NumberFormatException ex) {
                             values.put(headers.get(c), cell.getStringCellValue());
                         }
 
-                    } else if(CellType.getType(headers.get(c)) == 1) {
+                    } else if(CellType.getType(headers.get(c)) == ColumnType.INTEGER) {
                         try {
                             Integer intValue = Integer.parseInt(value);
                             values.put(headers.get(c), intValue);
