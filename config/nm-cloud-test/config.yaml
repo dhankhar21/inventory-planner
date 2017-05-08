@@ -77,16 +77,17 @@ server:
       archivedFileCount: 2
       maxFileSize: 500MB
 
-
 zuluConfiguration:
   url: http://10.47.1.8:31200
   viewPath: "/views"
   clientId: "retail.rp"
   maxBatchSize: 30
 
-sslClientConfiguration:
-  url: http://10.85.52.106
-  viewPath: "/supplier_selection"
+procClientConfiguration:
+  url: http://10.85.52.17
+  viewPath: "/requirements"
+  callbackUrl: http://10.85.110.102:32000/v1/requirement/callback/
+  requirementQueueName: proc_b2b_produciton
 
 fdpConfiguration:
   url: http://10.47.2.122:28223/ingestion/objects
@@ -97,11 +98,9 @@ fdpConfiguration:
   requirementEntitySchemaVersion: "3.0"
   requirementEventSchemaVersion: "2.0"
 
-procClientConfiguration:
-  url: http://10.85.52.17
-  viewPath: "/requirements"
-  callbackUrl: http://10.85.110.102:32000/v1/requirement/callback/
-  requirementQueueName: proc_b2b_production
+sslClientConfiguration:
+  url: http://10.85.52.106
+  viewPath: "/supplier_selection"
 
 clientConfiguration:
   timeout: 80000ms

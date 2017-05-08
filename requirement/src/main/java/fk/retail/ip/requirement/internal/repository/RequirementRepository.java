@@ -14,7 +14,7 @@ public interface RequirementRepository extends JpaGenericRepository<Requirement,
 
     int PAGE_SIZE = 1000;
 
-    List<Requirement> findRequirementByIds(List<Long> requirementIds);
+    List<Requirement> findRequirementByIds(List<String> requirementIds);
 
     List<Requirement> findActiveRequirementForState(List<String> requirementIds, String state);
 
@@ -34,6 +34,4 @@ public interface RequirementRepository extends JpaGenericRepository<Requirement,
 
     //TODO: legacy code
     void updateProjections(List<Requirement> requirements, Map<Long, String> groupToTargetState);
-
-    void bulkInsert(List<Requirement> requirements);
 }

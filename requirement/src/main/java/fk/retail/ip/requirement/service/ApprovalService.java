@@ -2,14 +2,18 @@ package fk.retail.ip.requirement.service;
 
 import com.google.common.collect.Lists;
 import fk.retail.ip.requirement.internal.Constants;
+import fk.retail.ip.requirement.internal.command.EventLogger;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.command.PayloadCreationHelper;
+import fk.retail.ip.requirement.internal.entities.AbstractEntity;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.entities.RequirementApprovalTransition;
+import fk.retail.ip.requirement.internal.enums.EventType;
 import fk.retail.ip.requirement.internal.enums.FdpRequirementEventType;
 import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.RequirementApprovalTransitionRepository;
+import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.internal.repository.RequirementRepository;
 
 import java.util.*;
@@ -45,7 +49,7 @@ public class ApprovalService<E> {
             String currentState = getter.apply(item);
             if (!currentState.equals(fromState)) {
                 /*TODO: add id here*/
-                throw new IllegalStateException("Entity[id=" + "" + "] is not in " + fromState + " state");
+                throw new IllegalStateException("Entity[id=" + item + "] is not in " + fromState + " state");
             }
         }
     }
@@ -63,11 +67,18 @@ public class ApprovalService<E> {
         private RequirementRepository requirementRepository;
         private RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository;
         private FdpRequirementIngestorImpl fdpRequirementIngestor;
+        private RequirementEventLogRepository requirementEventLogRepository;
 
-        public CopyOnStateChangeAction(RequirementRepository requirementRepository, RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository, FdpRequirementIngestorImpl fdpRequirementIngestor) {
+        public CopyOnStateChangeAction(
+                RequirementRepository requirementRepository,
+                RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository,
+                FdpRequirementIngestorImpl fdpRequirementIngestor,
+                RequirementEventLogRepository requirementEventLogRepository
+        ) {
             this.requirementRepository = requirementRepository;
             this.requirementApprovalStateTransitionRepository = requirementApprovalStateTransitionRepository;
             this.fdpRequirementIngestor = fdpRequirementIngestor;
+            this.requirementEventLogRepository = requirementEventLogRepository;
         }
 
 
@@ -79,8 +90,8 @@ public class ApprovalService<E> {
             Set<String> fsns = requirements.stream().map(Requirement::getFsn).collect(Collectors.toSet());
             List<RequirementChangeRequest> requirementChangeRequestList = Lists.newArrayList();
             List<Requirement> allEnabledRequirements = requirementRepository.find(fsns, true);
-            List<Requirement> tobeInserted = new ArrayList<>();
-            requirements.stream().forEach((requirement) -> {
+            EventType eventType = EventType.APPROVAL;
+            for (Requirement requirement : requirements) {
                 String toState = requirementToTargetStateMap.get(requirement.getId());
                 boolean isIPCReviewState = RequirementApprovalState.IPC_REVIEW.toString().equals(toState);
                 boolean isBizFinReviewState = RequirementApprovalState.BIZFIN_REVIEW.toString().equals(toState);
@@ -102,7 +113,6 @@ public class ApprovalService<E> {
                         toStateEntity.get().setSupplier(requirement.getSupplier());
                         toStateEntity.get().setApp(requirement.getApp());
                         toStateEntity.get().setSla(requirement.getSla());
-                        toStateEntity.get().setPreviousStateId(requirement.getId());
                         toStateEntity.get().setCreatedBy(userId);
                         toStateEntity.get().setCurrent(true);
                         requirement.setCurrent(false);
@@ -117,14 +127,12 @@ public class ApprovalService<E> {
                             newEntity.setQuantity(-1);
                         newEntity.setState(toState);
                         newEntity.setCreatedBy(userId);
-                        newEntity.setPreviousStateId(requirement.getId());
                         newEntity.setCurrent(true);
-                        newEntity.setId(UUID.randomUUID().toString());
-                        tobeInserted.add(newEntity);
                         requirementRepository.persist(newEntity);
                         requirement.setCurrent(false);
                         requirementChangeRequest.setRequirement(newEntity);
                     }
+                    eventType = EventType.APPROVAL;
                 } else {
                     //Add CANCEL events to fdp request
                     log.info("Adding CANCEL events to fdp request");
@@ -135,16 +143,18 @@ public class ApprovalService<E> {
                         requirementChangeRequest.setRequirement(toStateEntity.get());
                         e.setCreatedBy(userId);
                     });
+                    eventType = EventType.CANCELLATION;
                 }
                 requirementChangeRequest.setRequirementChangeMaps(requirementChangeMaps);
                 requirementChangeRequestList.add(requirementChangeRequest);
-            });
-            //requirementRepository.bulkInsert(tobeInserted);
+            }
             log.info("Updating Projections tables for Requirements");
             requirementRepository.updateProjections(requirements, groupToTargetState);
             //Push APPROVE and CANCEL events to fdp
-            log.info("Pushing APPROVE and CANCEL events to fdp");
+            log.debug("Pushing APPROVE and CANCEL events to fdp");
             fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
+            EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
+            eventLogger.insertEvent(requirementChangeRequestList, eventType);
         }
 
 
