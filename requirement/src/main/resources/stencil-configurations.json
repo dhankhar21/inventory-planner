@@ -1,12 +1,12 @@
 {
   "stateStencilMapping": {
     "proposed": {
-      "forward": "STNYCRDTK",
-      "backward": "STNVI1MMU"
+      "forward": "",
+      "backward": ""
     },
     "verified": {
       "forward": "STNYCRDTK",
-      "backward": "STNVI1MMU"
+      "backward": ""
     },
     "approved": {
       "forward": "STNK85ZW9",
@@ -17,12 +17,12 @@
       "backward": "STNMDH4D3"
     },
     "bizfin_approved": {
-      "forward": "STNM6GJCP",
-      "backward": "STNYCRDTK"
-    },
-    "ipc_finalised": {
-      "forward": "STNIOCM8V",
+      "forward": "",
       "backward": "STNE6M5V5"
+    },
+    "ipc_finalized": {
+      "forward": "STNIOCM8V",
+      "backward": ""
     }
   }
 }

@@ -11,16 +11,16 @@ import javax.ws.rs.client.Client;
 /**
  * Created by agarwal.vaibhav on 08/05/17.
  */
-abstract class BaseEmailCommand extends HystrixCommand implements JerseyClientBase {
+abstract class BaseEmailCommand<R> extends HystrixCommand<R> implements JerseyClientBase {
 
     protected final Client client;
     protected final ConnektConfiguration connektConfiguration;
     private static final int DEFAULT_TIME_OUT = 900000;
+    private static final String EMAIL_SERVICE_GROUP = "email-service";
 
-    /*TODO: look for this and set proper values*/
     BaseEmailCommand(Client client, ConnektConfiguration connektConfiguration) {
         super(
-                Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(""))
+                Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(EMAIL_SERVICE_GROUP))
                 .andCommandPropertiesDefaults(HystrixCommandProperties
                 .Setter()
                 .withExecutionTimeoutInMilliseconds(DEFAULT_TIME_OUT))

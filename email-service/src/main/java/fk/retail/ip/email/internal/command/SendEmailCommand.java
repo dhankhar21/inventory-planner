@@ -40,8 +40,6 @@ public class SendEmailCommand extends BaseEmailCommand {
         if (response.getStatus() != 202) {
             log.info("error sending email");
         }
-
-        /*TODO: check for this*/
         return null;
     }
 
