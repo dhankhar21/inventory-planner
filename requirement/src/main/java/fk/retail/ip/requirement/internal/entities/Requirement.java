@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.UUID;
 
 
+
 /**
  * Created by nidhigupta.m on 26/01/17.
  */
@@ -86,6 +87,11 @@ public class Requirement {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "requirement_snapshot_id")
     private RequirementSnapshot requirementSnapshot;
+
+    //todo: cleanup (fields for backward compatibilty)
+    //TODO: legacy code
+    @Column(name = "prev_state_id")
+    private Long previousStateId;
 
     //TODO: legacy code
     @Column(name = "pan_india")

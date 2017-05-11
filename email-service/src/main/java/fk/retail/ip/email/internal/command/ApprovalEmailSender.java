@@ -19,20 +19,21 @@ import java.util.Map;
  * Created by agarwal.vaibhav on 08/05/17.
  */
 @Slf4j
-public class AppovalEmailSender extends SendEmail {
+public class ApprovalEmailSender extends SendEmail {
 
     @Inject
-    public AppovalEmailSender(ConnektClient connektClient, EmailDetailsRepository emailDetailsRepository) {
+    public ApprovalEmailSender(ConnektClient connektClient, EmailDetailsRepository emailDetailsRepository) {
         super(emailDetailsRepository, connektClient);
     }
 
 //    @Override
     public void send(Map<EmailParams, String> params, String stencilId){
 
-        if (params.get(ApprovalEmailParams.GROUPNAME).isEmpty()) {
-            log.info("no group chosen");
-            return;
-        }
+//        if (params.get(ApprovalEmailParams.GROUPNAME).isEmpty()) {
+//            log.info("no group chosen");
+//            return;
+//        }
+
         ConnektPayload connektPayload = new ConnektPayload();
         connektPayload.setStencilId(stencilId);
 

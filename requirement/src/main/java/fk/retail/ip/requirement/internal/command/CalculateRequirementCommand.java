@@ -1,18 +1,17 @@
 package fk.retail.ip.requirement.internal.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Table;
+import com.google.common.collect.*;
 import com.google.inject.Inject;
 import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.context.ForecastContext;
 import fk.retail.ip.requirement.internal.context.OnHandQuantityContext;
 import fk.retail.ip.requirement.internal.context.PolicyContext;
 import fk.retail.ip.requirement.internal.entities.*;
-import fk.retail.ip.requirement.internal.enums.*;
+import fk.retail.ip.requirement.internal.enums.EventType;
+import fk.retail.ip.requirement.internal.enums.FdpRequirementEventType;
+import fk.retail.ip.requirement.internal.enums.OverrideKey;
+import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.*;
 import fk.retail.ip.requirement.model.RequirementChangeMap;
 import fk.retail.ip.requirement.model.RequirementChangeRequest;
@@ -20,10 +19,11 @@ import fk.retail.ip.ssl.client.SslClient;
 import fk.retail.ip.ssl.model.SupplierSelectionRequest;
 import fk.retail.ip.ssl.model.SupplierSelectionResponse;
 import fk.retail.ip.ssl.model.SupplierView;
-import java.util.*;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class CalculateRequirementCommand {
@@ -44,6 +44,7 @@ public class CalculateRequirementCommand {
     private final ObjectMapper objectMapper;
     private final FdpRequirementIngestorImpl fdpRequirementIngestor;
     private final RequirementEventLogRepository requirementEventLogRepository;
+    private final RequirementHelper requirementHelper;
 
     private Set<String> fsns = Sets.newHashSet();
     private Map<String, String> warehouseCodeMap = Maps.newHashMap();
@@ -63,6 +64,7 @@ public class CalculateRequirementCommand {
             OpenRequirementAndPurchaseOrderRepository openRequirementAndPurchaseOrderRepository,
             RequirementRepository requirementRepository,
             ProductInfoRepository productInfoRepository,
+            RequirementHelper requirementHelper,
             WarehouseSupplierSlaRepository warehouseSupplierSlaRepository,
             SslClient sslClient,
             ProjectionRepository projectionRepository,
@@ -79,12 +81,13 @@ public class CalculateRequirementCommand {
         this.openRequirementAndPurchaseOrderRepository = openRequirementAndPurchaseOrderRepository;
         this.requirementRepository = requirementRepository;
         this.productInfoRepository = productInfoRepository;
-        this.warehouseSupplierSlaRepository = warehouseSupplierSlaRepository;
+        this.requirementHelper = requirementHelper;
         this.sslClient = sslClient;
         this.projectionRepository = projectionRepository;
         this.objectMapper = objectMapper;
         this.fdpRequirementIngestor = fdpRequirementIngestor;
         this.requirementEventLogRepository = requirementEventLogRepository;
+        this.warehouseSupplierSlaRepository = warehouseSupplierSlaRepository;
     }
 
     public CalculateRequirementCommand withFsns(Set<String> fsns) {
@@ -228,7 +231,7 @@ public class CalculateRequirementCommand {
     }
 
     private void populateSupplier(List<Requirement> requirements, List<RequirementChangeRequest> requirementChangeRequestList) {
-        List<SupplierSelectionRequest> requests = createSupplierSelectionRequest(requirements);
+        List<SupplierSelectionRequest> requests = requirementHelper.createSupplierSelectionRequest(requirements);
         List<SupplierSelectionResponse> responses = sslClient.getSupplierSelectionResponse(requests);
         if (requests.size() != responses.size()) {
             return;
@@ -248,7 +251,7 @@ public class CalculateRequirementCommand {
                 requirement.setSupplier(supplier.getSourceId());
                 requirement.setApp(supplier.getApp());
                 requirement.setMrp(supplier.getMrp());
-                int sla = getSla(fsnToVerticalMap.get(requirement.getFsn()), requirement.getWarehouse(), supplier.getSourceId(), supplier.getSla());
+                int sla = requirementHelper.getSla(fsnToVerticalMap.get(requirement.getFsn()), requirement.getWarehouse(), supplier.getSourceId(), supplier.getSla());
                 requirement.setSla(sla);
                 requirement.setCurrency(supplier.getVendorPreferredCurrency());
                 requirement.setMrpCurrency(supplier.getVendorPreferredCurrency());

@@ -2,7 +2,7 @@ package fk.retail.ip.requirement.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import fk.retail.ip.email.internal.command.AppovalEmailSender;
+import fk.retail.ip.email.internal.command.ApprovalEmailSender;
 import fk.retail.ip.email.internal.enums.ApprovalEmailParams;
 import fk.retail.ip.email.internal.enums.EmailParams;
 import fk.retail.ip.requirement.internal.Constants;
@@ -18,17 +18,16 @@ import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.RequirementApprovalTransitionRepository;
 import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.internal.repository.RequirementRepository;
+import fk.retail.ip.requirement.model.RequirementChangeMap;
+import fk.retail.ip.requirement.model.RequirementChangeRequest;
+import fk.retail.ip.requirement.model.StencilConfigModel;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import fk.retail.ip.requirement.model.RequirementChangeMap;
-import fk.retail.ip.requirement.model.RequirementChangeRequest;
-import fk.retail.ip.requirement.model.StencilConfigModel;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -76,14 +75,14 @@ public class ApprovalService<E> {
         private RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository;
         private FdpRequirementIngestorImpl fdpRequirementIngestor;
         private RequirementEventLogRepository requirementEventLogRepository;
-        private AppovalEmailSender appovalEmailSender;
+        private ApprovalEmailSender appovalEmailSender;
 
         public CopyOnStateChangeAction(
                 RequirementRepository requirementRepository,
                 RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository,
                 FdpRequirementIngestorImpl fdpRequirementIngestor,
                 RequirementEventLogRepository requirementEventLogRepository,
-                AppovalEmailSender appovalEmailSender
+                ApprovalEmailSender appovalEmailSender
         ) {
             this.requirementRepository = requirementRepository;
             this.requirementApprovalStateTransitionRepository = requirementApprovalStateTransitionRepository;

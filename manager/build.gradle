@@ -13,4 +13,5 @@ dependencies {
     compile project(':d42-client')
     compile project(':email-service')
     compile 'mysql:mysql-connector-java:5.1.37'
+
 }

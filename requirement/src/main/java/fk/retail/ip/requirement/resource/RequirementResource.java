@@ -97,7 +97,6 @@ public class RequirementResource {
     @Path("/upload")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-
     public Response uploadProjectionOverride(
             @FormDataParam("datafile") InputStream inputStream,
             @FormDataParam("state") String state,
@@ -156,5 +155,6 @@ public class RequirementResource {
     public SearchResponse.GroupedResponse search(RequirementSearchRequest request) throws JSONException {
         return requirementService.search(request);
     }
+
 
 }

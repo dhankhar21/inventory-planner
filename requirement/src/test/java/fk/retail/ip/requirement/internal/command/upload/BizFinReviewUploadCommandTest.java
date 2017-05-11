@@ -12,7 +12,6 @@ import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.internal.repository.TestHelper;
-import fk.retail.ip.requirement.model.RequirementDownloadLineItem;
 import fk.retail.ip.requirement.model.RequirementUploadLineItem;
 import fk.retail.ip.requirement.model.UploadOverrideFailureLineItem;
 import org.jukito.JukitoRunner;
@@ -58,8 +57,9 @@ public class BizFinReviewUploadCommandTest {
     public void uploadTest() throws IOException {
         List<RequirementUploadLineItem> requirementUploadLineItems = TestHelper.getBizfinReviewUploadLineItem();
         List<Requirement> requirements = getRequirements();
-        List<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = bizFinReviewUploadCommand.
-                execute(requirementUploadLineItems, requirements, "").getUploadOverrideFailureLineItemList();
+        List<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = bizFinReviewUploadCommand
+                .execute(requirementUploadLineItems, requirements, "",
+                        RequirementApprovalState.BIZFIN_REVIEW.toString()).getUploadOverrideFailureLineItemList();
 
         Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
 

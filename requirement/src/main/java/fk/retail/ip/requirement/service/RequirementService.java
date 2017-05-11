@@ -6,9 +6,9 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import fk.retail.ip.core.poi.SpreadSheetReader;
-import fk.retail.ip.email.internal.command.AppovalEmailSender;
-import fk.retail.ip.proc.model.PushToProcResponse;
 import fk.retail.ip.d42.client.D42Client;
+import fk.retail.ip.email.internal.command.ApprovalEmailSender;
+import fk.retail.ip.proc.model.PushToProcResponse;
 import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.command.*;
 import fk.retail.ip.requirement.internal.entities.Requirement;
@@ -28,13 +28,11 @@ import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.json.JSONException;
 
-import java.util.Arrays;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
@@ -62,7 +60,7 @@ public class RequirementService {
     private final D42Client d42Client;
     private final int PAGE_SIZE = 20;
     private final String BUCKET_NAME = "ip_requirements";
-    private final AppovalEmailSender appovalEmailSender;
+    private final ApprovalEmailSender appovalEmailSender;
 
     @Inject
     public RequirementService(RequirementRepository requirementRepository,
@@ -70,14 +68,15 @@ public class RequirementService {
                               ApprovalService approvalService,
                               Provider<CalculateRequirementCommand> calculateRequirementCommandProvider,
                               RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository,
-                              SearchFilterCommand searchFilterCommand,
-                              Provider<SearchCommand> searchCommandProvider,
+                              SearchFilterCommand searchFilterCommand, Provider<SearchCommand> searchCommandProvider,
                               FdpRequirementIngestorImpl fdpRequirementIngestor,
                               RequirementEventLogRepository requirementEventLogRepository,
                               Provider<TriggerRequirementCommand> triggerRequirementCommandProvider,
                               PushToProcCommand pushToProcCommand,
                               D42Client d42Client,
-                              AppovalEmailSender appovalEmailSender) {
+                              ApprovalEmailSender appovalEmailSender
+                              ) {
+
         this.requirementRepository = requirementRepository;
         this.requirementStateFactory = requirementStateFactory;
         this.approvalService = approvalService;
@@ -159,9 +158,11 @@ public class RequirementService {
             } else {
                 RequirementState state = requirementStateFactory.getRequirementState(requirementState);
                 try {
-                    UploadOverrideResult uploadOverrideResult = state.upload(requirements, requirementUploadLineItems, userId);
+
+                    UploadOverrideResult uploadOverrideResult = state.upload(requirements, requirementUploadLineItems, userId, requirementState);
 
                     List<UploadOverrideFailureLineItem> uploadOverrideFailureLineItems = uploadOverrideResult.getUploadOverrideFailureLineItemList();
+
                     UploadResponse uploadResponse = new UploadResponse();
                     uploadResponse.setUploadOverrideFailureLineItems(uploadOverrideFailureLineItems);
                     uploadResponse.setSuccessfulRowCount(uploadOverrideResult.getSuccessfulRowCount());

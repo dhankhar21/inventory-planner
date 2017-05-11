@@ -1,6 +1,6 @@
 package fk.retail.ip.requirement.service;
 
-import fk.retail.ip.email.internal.command.AppovalEmailSender;
+import fk.retail.ip.email.internal.command.ApprovalEmailSender;
 import fk.retail.ip.requirement.config.TestDbModule;
 import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
@@ -13,22 +13,18 @@ import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepositor
 import fk.retail.ip.requirement.internal.repository.RequirementRepository;
 import fk.retail.ip.requirement.internal.repository.TestHelper;
 import fk.sp.common.extensions.jpa.TransactionalJpaRepositoryTest;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.function.Function;
 import org.jukito.JukitoRunner;
 import org.jukito.UseModules;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author Pragalathan M<pragalathan.m@flipkart.com>
@@ -55,11 +51,11 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
     @Captor
     private ArgumentCaptor<Requirement> captor;
 
+    @Mock
+    private ApprovalEmailSender appovalEmailSender;
+
     @Captor
     private ArgumentCaptor<List<RequirementEventLog>> argumentCaptor;
-
-    @Mock
-    private AppovalEmailSender appovalEmailSender;
 
 
     @Test(expected = IllegalStateException.class)
@@ -67,7 +63,7 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
         String fromState = "proposed";
         Requirement requirement = createRequirement("verified", true);
         Function<Requirement, String> getter = Requirement::getState;
-        approvalService.changeState(Arrays.asList(requirement), fromState, "userId", true, getter, "",new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor, requirementEventLogRepository, appovalEmailSender));
+        approvalService.changeState(Arrays.asList(requirement), fromState, "userId", true, getter, "", new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor, requirementEventLogRepository, appovalEmailSender));
 
     }
 
@@ -113,6 +109,7 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
         Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
         Mockito.verify(requirementRepository).persist(captor.capture());
         Assert.assertEquals(toState,captor.getValue().getState());
+        Assert.assertEquals(requirement.getId(), captor.getValue().getPreviousStateId());
         Assert.assertEquals(true, captor.getValue().isCurrent());
         Assert.assertEquals(false, requirement.isCurrent());
 

@@ -6,8 +6,13 @@ import fk.retail.ip.requirement.config.TestDbModule;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.entities.RequirementSnapshot;
 import fk.sp.common.extensions.jpa.TransactionalJpaRepositoryTest;
-
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import org.apache.commons.lang.ArrayUtils;
@@ -36,7 +41,9 @@ public class RequirementRepositoryTest extends TransactionalJpaRepositoryTest {
     public void testFindRequirementById() {
         Requirement requirement = getRequirement(1);
         requirementRepository.persist(requirement);
-        List<Requirement> requirements = requirementRepository.findRequirementByIds(Lists.newArrayList("1"));
+        List<Requirement> allRequirements = requirementRepository.findAll();
+        List<String> idsAsList = allRequirements.stream().map(Requirement::getId).collect(Collectors.toList());
+        List<Requirement> requirements = requirementRepository.findRequirementByIds(idsAsList);
         Assert.assertEquals(1, requirements.size());
         Assert.assertEquals(requirement, requirements.get(0));
     }
@@ -50,7 +57,8 @@ public class RequirementRepositoryTest extends TransactionalJpaRepositoryTest {
         });
 
 
-        List idsAsList = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
+        List<Requirement> allRequirements = requirementRepository.findAll();
+        List<String> idsAsList = allRequirements.stream().map(Requirement::getId).collect(Collectors.toList());
 
         List<Requirement> requirements = requirementRepository.findRequirementByIds(idsAsList);
         Assert.assertEquals(10, requirements.size());
@@ -117,7 +125,8 @@ public class RequirementRepositoryTest extends TransactionalJpaRepositoryTest {
         });
 
 
-        List idsAsList = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
+        List<Requirement> allRequirements = requirementRepository.findAll();
+        List<String> idsAsList = allRequirements.stream().map(Requirement::getId).collect(Collectors.toList());
 
         List<Requirement> requirements = requirementRepository.findActiveRequirementForState(idsAsList, "proposed");
         Assert.assertEquals(9, requirements.size());
