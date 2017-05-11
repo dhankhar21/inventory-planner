@@ -109,7 +109,6 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
         Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
         Mockito.verify(requirementRepository).persist(captor.capture());
         Assert.assertEquals(toState,captor.getValue().getState());
-        Assert.assertEquals(requirement.getId(), captor.getValue().getPreviousStateId());
         Assert.assertEquals(true, captor.getValue().isCurrent());
         Assert.assertEquals(false, requirement.isCurrent());
 

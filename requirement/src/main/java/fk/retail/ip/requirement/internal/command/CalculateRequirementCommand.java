@@ -20,9 +20,11 @@ import fk.retail.ip.ssl.model.SupplierSelectionRequest;
 import fk.retail.ip.ssl.model.SupplierSelectionResponse;
 import fk.retail.ip.ssl.model.SupplierView;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.DateTime;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,14 +39,13 @@ public class CalculateRequirementCommand {
     private final OpenRequirementAndPurchaseOrderRepository openRequirementAndPurchaseOrderRepository;
     private final RequirementRepository requirementRepository;
     private final ProductInfoRepository productInfoRepository;
-    private final WarehouseSupplierSlaRepository warehouseSupplierSlaRepository;
     private final SslClient sslClient;
     //TODO: remove
     private final ProjectionRepository projectionRepository;
     private final ObjectMapper objectMapper;
     private final FdpRequirementIngestorImpl fdpRequirementIngestor;
-    private final RequirementEventLogRepository requirementEventLogRepository;
     private final RequirementHelper requirementHelper;
+    private final RequirementEventLogRepository requirementEventLogRepository;
 
     private Set<String> fsns = Sets.newHashSet();
     private Map<String, String> warehouseCodeMap = Maps.newHashMap();
@@ -65,7 +66,6 @@ public class CalculateRequirementCommand {
             RequirementRepository requirementRepository,
             ProductInfoRepository productInfoRepository,
             RequirementHelper requirementHelper,
-            WarehouseSupplierSlaRepository warehouseSupplierSlaRepository,
             SslClient sslClient,
             ProjectionRepository projectionRepository,
             ObjectMapper objectMapper,
@@ -87,7 +87,6 @@ public class CalculateRequirementCommand {
         this.objectMapper = objectMapper;
         this.fdpRequirementIngestor = fdpRequirementIngestor;
         this.requirementEventLogRepository = requirementEventLogRepository;
-        this.warehouseSupplierSlaRepository = warehouseSupplierSlaRepository;
     }
 
     public CalculateRequirementCommand withFsns(Set<String> fsns) {
@@ -266,42 +265,6 @@ public class CalculateRequirementCommand {
                 requirementChangeRequestList.add(requirementChangeRequest);
             }
         });
-    }
-
-    //TODO: optimize this
-    private int getSla(String vertical, String warehouse, String supplier, int apiSla) {
-        if (vertical == null || warehouse == null) {
-            return apiSla;
-        }
-        try {
-            Optional<Integer> sla = warehouseSupplierSlaRepository.getSla(vertical, warehouse, supplier);
-            if (sla.isPresent()) {
-                return sla.get();
-            } else {
-                return apiSla;
-            }
-        } catch (Exception e) {
-            log.warn(e.getMessage(), e);
-            return apiSla;
-        }
-    }
-
-    public List<SupplierSelectionRequest> createSupplierSelectionRequest(List<Requirement> requirements) {
-        List<SupplierSelectionRequest> requests = Lists.newArrayList();
-        requirements.forEach(req -> {
-            SupplierSelectionRequest request = new SupplierSelectionRequest();
-            request.setFsn(req.getFsn());
-            request.setSku("SKU0000000000000");
-            request.setOrderType(req.getProcType());
-            request.setQuantity((int) req.getQuantity());
-            request.setEntityType("Requirement");
-            request.setWarehouseId(req.getWarehouse());
-            request.setTenantId("FKI");
-            DateTime date = DateTime.now();
-            request.setRequiredByDate(date.toString());
-            requests.add(request);
-        });
-        return requests;
     }
 
     public Map<String, String> getWarehouseCodeMap() {

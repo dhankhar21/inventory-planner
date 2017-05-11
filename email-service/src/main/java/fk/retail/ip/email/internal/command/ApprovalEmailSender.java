@@ -29,10 +29,10 @@ public class ApprovalEmailSender extends SendEmail {
 //    @Override
     public void send(Map<EmailParams, String> params, String stencilId){
 
-//        if (params.get(ApprovalEmailParams.GROUPNAME).isEmpty()) {
-//            log.info("no group chosen");
-//            return;
-//        }
+        if (params.get(ApprovalEmailParams.GROUPNAME).isEmpty()) {
+            log.info("no group chosen");
+            return;
+        }
 
         ConnektPayload connektPayload = new ConnektPayload();
         connektPayload.setStencilId(stencilId);

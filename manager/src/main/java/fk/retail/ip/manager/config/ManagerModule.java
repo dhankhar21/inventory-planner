@@ -18,7 +18,6 @@ import org.glassfish.jersey.filter.LoggingFilter;
 
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.ClientResponseFilter;
-import java.text.SimpleDateFormat;
 import java.util.logging.Logger;
 
 import static com.google.inject.multibindings.Multibinder.newSetBinder;
@@ -84,7 +83,6 @@ public class ManagerModule extends AbstractModule {
 
     @Provides
     public ObjectMapper getObjectMapper() {
-        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         return objectMapper;
     }
 

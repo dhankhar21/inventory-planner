@@ -93,11 +93,6 @@ public class CDOReviewUploadCommand extends UploadCommand {
             validationComment = convertToLineSeparatedComment(validationComment, validationResponse.get());
         }
 
-        validationResponse = validateSupplierOverride(bdProposedSupplier, currentSupplier, supplierOverrideComment);
-        if (validationResponse.isPresent()) {
-            validationComment = convertToLineSeparatedComment(validationComment, validationResponse.get());
-        }
-
         if (!validationComment.isEmpty()) {
             overriddenValues.put(Constants.STATUS, OverrideStatus.FAILURE.toString());
             overriddenValues.put(OverrideKey.OVERRIDE_COMMENT.toString(), validationComment);
@@ -284,6 +279,5 @@ public class CDOReviewUploadCommand extends UploadCommand {
     private String convertToLineSeparatedComment(String firstString, String secondString) {
         return firstString.isEmpty() ? secondString : firstString + System.lineSeparator() + secondString;
     }
-
 
 }

@@ -5,13 +5,11 @@ import com.google.inject.Provider;
 import fk.retail.ip.requirement.internal.command.download.DownloadCDOReviewCommand;
 import fk.retail.ip.requirement.internal.command.upload.CDOReviewUploadCommand;
 import fk.retail.ip.requirement.internal.entities.Requirement;
-import fk.retail.ip.requirement.model.RequirementDownloadLineItem;
 import fk.retail.ip.requirement.model.RequirementUploadLineItem;
-import fk.retail.ip.requirement.model.UploadOverrideFailureLineItem;
 import fk.retail.ip.requirement.model.UploadOverrideResult;
 
-import java.util.List;
 import javax.ws.rs.core.StreamingOutput;
+import java.util.List;
 
 /**
  * Created by nidhigupta.m on 21/02/17.
@@ -37,4 +35,5 @@ public class CDOReviewRequirementState implements RequirementState {
     public StreamingOutput download(List<Requirement> requirements, boolean isLastAppSupplierRequired) {
         return downloadCDOReviewCommandProvider.get().execute(requirements, isLastAppSupplierRequired);
     }
+
 }
