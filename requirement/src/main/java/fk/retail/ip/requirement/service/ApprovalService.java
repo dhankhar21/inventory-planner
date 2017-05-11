@@ -1,23 +1,33 @@
 package fk.retail.ip.requirement.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import fk.retail.ip.email.internal.command.AppovalEmailSender;
+import fk.retail.ip.email.internal.enums.ApprovalEmailParams;
+import fk.retail.ip.email.internal.enums.EmailParams;
 import fk.retail.ip.requirement.internal.Constants;
+import fk.retail.ip.requirement.internal.command.EventLogger;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.command.PayloadCreationHelper;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.entities.RequirementApprovalTransition;
+import fk.retail.ip.requirement.internal.enums.EventType;
 import fk.retail.ip.requirement.internal.enums.FdpRequirementEventType;
 import fk.retail.ip.requirement.internal.enums.OverrideKey;
 import fk.retail.ip.requirement.internal.enums.RequirementApprovalState;
 import fk.retail.ip.requirement.internal.repository.RequirementApprovalTransitionRepository;
+import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepository;
 import fk.retail.ip.requirement.internal.repository.RequirementRepository;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import fk.retail.ip.requirement.model.RequirementChangeMap;
 import fk.retail.ip.requirement.model.RequirementChangeRequest;
+import fk.retail.ip.requirement.model.StencilConfigModel;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,10 +43,11 @@ public class ApprovalService<E> {
                             String userId,
                             boolean forward,
                             Function<E, String> getter,
+                            String groupName,
                             StageChangeAction<E>... actionListeners) {
         validate(items, fromState, getter);
         for (StageChangeAction<E> consumer : actionListeners) {
-            consumer.execute(userId, fromState, forward, items);
+            consumer.execute(userId, fromState, forward, items, groupName);
         }
     }
 
@@ -45,7 +56,7 @@ public class ApprovalService<E> {
             String currentState = getter.apply(item);
             if (!currentState.equals(fromState)) {
                 /*TODO: add id here*/
-                throw new IllegalStateException("Entity[id=" + "" + "] is not in " + fromState + " state");
+                throw new IllegalStateException("Entity[id=" + item + "] is not in " + fromState + " state");
             }
         }
     }
@@ -55,7 +66,8 @@ public class ApprovalService<E> {
         void execute(String userId,
                      String fromState,
                      boolean forward,
-                     List<E> entity);
+                     List<E> entity,
+                     String groupName);
     }
 
     public static class CopyOnStateChangeAction implements StageChangeAction<Requirement> {
@@ -63,24 +75,34 @@ public class ApprovalService<E> {
         private RequirementRepository requirementRepository;
         private RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository;
         private FdpRequirementIngestorImpl fdpRequirementIngestor;
+        private RequirementEventLogRepository requirementEventLogRepository;
+        private AppovalEmailSender appovalEmailSender;
 
-        public CopyOnStateChangeAction(RequirementRepository requirementRepository, RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository, FdpRequirementIngestorImpl fdpRequirementIngestor) {
+        public CopyOnStateChangeAction(
+                RequirementRepository requirementRepository,
+                RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository,
+                FdpRequirementIngestorImpl fdpRequirementIngestor,
+                RequirementEventLogRepository requirementEventLogRepository,
+                AppovalEmailSender appovalEmailSender
+        ) {
             this.requirementRepository = requirementRepository;
             this.requirementApprovalStateTransitionRepository = requirementApprovalStateTransitionRepository;
             this.fdpRequirementIngestor = fdpRequirementIngestor;
+            this.requirementEventLogRepository = requirementEventLogRepository;
+            this.appovalEmailSender = appovalEmailSender;
         }
 
 
         @Override
-        public void execute(String userId, String fromState, boolean forward, List<Requirement> requirements) {
+        public void execute(String userId, String fromState, boolean forward, List<Requirement> requirements, String groupName) {
             Map<Long, String> groupToTargetState = getGroupToTargetStateMap(fromState, forward);
             log.info("Constructed map for group to Target state " + groupToTargetState);
             Map<String, String> requirementToTargetStateMap = getRequirementToTargetStateMap(groupToTargetState, requirements);
             Set<String> fsns = requirements.stream().map(Requirement::getFsn).collect(Collectors.toSet());
             List<RequirementChangeRequest> requirementChangeRequestList = Lists.newArrayList();
             List<Requirement> allEnabledRequirements = requirementRepository.find(fsns, true);
-            List<Requirement> tobeInserted = new ArrayList<>();
-            requirements.stream().forEach((requirement) -> {
+            EventType eventType = EventType.APPROVAL;
+            for (Requirement requirement : requirements) {
                 String toState = requirementToTargetStateMap.get(requirement.getId());
                 boolean isIPCReviewState = RequirementApprovalState.IPC_REVIEW.toString().equals(toState);
                 boolean isBizFinReviewState = RequirementApprovalState.BIZFIN_REVIEW.toString().equals(toState);
@@ -102,7 +124,6 @@ public class ApprovalService<E> {
                         toStateEntity.get().setSupplier(requirement.getSupplier());
                         toStateEntity.get().setApp(requirement.getApp());
                         toStateEntity.get().setSla(requirement.getSla());
-                        toStateEntity.get().setPreviousStateId(requirement.getId());
                         toStateEntity.get().setCreatedBy(userId);
                         toStateEntity.get().setCurrent(true);
                         requirement.setCurrent(false);
@@ -117,14 +138,12 @@ public class ApprovalService<E> {
                             newEntity.setQuantity(-1);
                         newEntity.setState(toState);
                         newEntity.setCreatedBy(userId);
-                        newEntity.setPreviousStateId(requirement.getId());
                         newEntity.setCurrent(true);
-                        newEntity.setId(UUID.randomUUID().toString());
-                        tobeInserted.add(newEntity);
                         requirementRepository.persist(newEntity);
                         requirement.setCurrent(false);
                         requirementChangeRequest.setRequirement(newEntity);
                     }
+                    eventType = EventType.APPROVAL;
                 } else {
                     //Add CANCEL events to fdp request
                     log.info("Adding CANCEL events to fdp request");
@@ -135,16 +154,24 @@ public class ApprovalService<E> {
                         requirementChangeRequest.setRequirement(toStateEntity.get());
                         e.setCreatedBy(userId);
                     });
+                    eventType = EventType.CANCELLATION;
                 }
                 requirementChangeRequest.setRequirementChangeMaps(requirementChangeMaps);
                 requirementChangeRequestList.add(requirementChangeRequest);
-            });
-            //requirementRepository.bulkInsert(tobeInserted);
+            }
+            String stencilId = getStencilId(fromState, forward);
+            if (stencilId != null && !stencilId.isEmpty()) {
+                appovalEmailSender.send(createStencilParamsMap(groupName, userId, userId, getCurrentTimestamp()), stencilId);
+            } else {
+                log.debug("stencil not found for the above request");
+            }
             log.info("Updating Projections tables for Requirements");
             requirementRepository.updateProjections(requirements, groupToTargetState);
             //Push APPROVE and CANCEL events to fdp
-            log.info("Pushing APPROVE and CANCEL events to fdp");
+            log.debug("Pushing APPROVE and CANCEL events to fdp");
             fdpRequirementIngestor.pushToFdp(requirementChangeRequestList);
+            EventLogger eventLogger = new EventLogger(requirementEventLogRepository);
+            eventLogger.insertEvent(requirementChangeRequestList, eventType);
         }
 
 
@@ -157,5 +184,44 @@ public class ApprovalService<E> {
             return requirements.stream().collect(Collectors.toMap(requirement -> requirement.getId(), requirement -> groupToTargetState.get(requirement.getGroup())!= null ? groupToTargetState.get(requirement.getGroup()):groupToTargetState.get(Constants.DEFAULT_TRANSITION_GROUP)));
         }
 
+        private Map<EmailParams, String> createStencilParamsMap(
+                String groupName,
+                String userName,
+                String user,
+                String timestamp) {
+            Map<EmailParams, String> paramsMap = new HashMap<>();
+            paramsMap.put(ApprovalEmailParams.USERNAME, userName);
+            paramsMap.put(ApprovalEmailParams.USER, user);
+            paramsMap.put(ApprovalEmailParams.GROUPNAME, groupName);
+            paramsMap.put(ApprovalEmailParams.TIMESTAMP, timestamp);
+            paramsMap.put(ApprovalEmailParams.LINK, "http://www.google.com");
+            return paramsMap;
+        }
+
+        private String getStencilId(String state, boolean forward) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                //Get the stencil id by parsing the stencil configuration file
+                File file = new File(getClass().getClassLoader().getResource(Constants.STENCIL_CONFIGURATION_FILE).getFile());
+                StencilConfigModel stencilStateMapping = objectMapper.
+                        readValue(file, StencilConfigModel.class);
+
+                String stencilId;
+                if (forward) {
+                    stencilId = stencilStateMapping.getStateStencilMapping().get(state).get("forward");
+                } else {
+                    stencilId = stencilStateMapping.getStateStencilMapping().get(state).get("backward");
+                }
+                return stencilId;
+
+            } catch(IOException ex) {
+                log.info("unable to parse ");
+                return null;
+            }
+        }
+
+        private String getCurrentTimestamp() {
+            return new Date().toString();
+        }
     }
 }
