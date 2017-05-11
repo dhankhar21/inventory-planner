@@ -26,7 +26,7 @@ public class ApprovalEmailSender extends SendEmail {
         super(emailDetailsRepository, connektClient);
     }
 
-//    @Override
+    @Override
     public void send(Map<EmailParams, String> params, String stencilId){
 
         if (params.get(ApprovalEmailParams.GROUPNAME).isEmpty()) {

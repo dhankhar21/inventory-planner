@@ -62,5 +62,8 @@ public interface Constants {
 
     String STENCIL_CONFIGURATION_FILE = "stencil-configurations.json";
 
+    String ELB_HOST = "10.85.52.190";
+    String IP_CONSOLE_PATH = "/projection/";
+
 }
 

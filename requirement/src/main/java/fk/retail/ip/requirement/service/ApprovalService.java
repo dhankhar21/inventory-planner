@@ -22,9 +22,13 @@ import fk.retail.ip.requirement.model.RequirementChangeMap;
 import fk.retail.ip.requirement.model.RequirementChangeRequest;
 import fk.retail.ip.requirement.model.StencilConfigModel;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -160,7 +164,7 @@ public class ApprovalService<E> {
             }
             String stencilId = getStencilId(fromState, forward);
             if (stencilId != null && !stencilId.isEmpty()) {
-                appovalEmailSender.send(createStencilParamsMap(groupName, userId, userId, getCurrentTimestamp()), stencilId);
+                appovalEmailSender.send(createStencilParamsMap(groupName, userId, userId, getCurrentTimestamp(), fromState), stencilId);
             } else {
                 log.debug("stencil not found for the above request");
             }
@@ -187,13 +191,14 @@ public class ApprovalService<E> {
                 String groupName,
                 String userName,
                 String user,
-                String timestamp) {
+                String timestamp,
+                String state) {
             Map<EmailParams, String> paramsMap = new HashMap<>();
             paramsMap.put(ApprovalEmailParams.USERNAME, userName);
             paramsMap.put(ApprovalEmailParams.USER, user);
             paramsMap.put(ApprovalEmailParams.GROUPNAME, groupName);
             paramsMap.put(ApprovalEmailParams.TIMESTAMP, timestamp);
-            paramsMap.put(ApprovalEmailParams.LINK, "http://www.google.com");
+            paramsMap.put(ApprovalEmailParams.LINK, getUrl(groupName, state));
             return paramsMap;
         }
 
@@ -221,6 +226,28 @@ public class ApprovalService<E> {
 
         private String getCurrentTimestamp() {
             return new Date().toString();
+        }
+
+        private String getUrl(String groupName, String state) {
+            try {
+                String requirementLink;
+                String path = Constants.IP_CONSOLE_PATH + state;
+                URI uri = new URIBuilder()
+                        .setScheme("http")
+                        .setHost(Constants.ELB_HOST)
+                        .setPath(path)
+                        .setParameter("current_state", state)
+                        .setParameter("group", groupName)
+                        .setParameter("commit", "search")
+                        .build();
+
+                HttpGet httpGet = new HttpGet(uri);
+                requirementLink = httpGet.getURI().toString();
+                return requirementLink;
+
+            } catch (URISyntaxException ex) {
+                return "";
+            }
         }
     }
 }
