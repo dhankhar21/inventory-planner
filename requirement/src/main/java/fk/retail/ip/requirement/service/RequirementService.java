@@ -7,10 +7,11 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import fk.retail.ip.core.poi.SpreadSheetReader;
 import fk.retail.ip.d42.client.D42Client;
-import fk.retail.ip.email.internal.command.ApprovalEmailSender;
 import fk.retail.ip.proc.model.PushToProcResponse;
+import fk.retail.ip.requirement.config.EmailConfiguration;
 import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.command.*;
+import fk.retail.ip.requirement.internal.command.emailHelper.ApprovalEmailHelper;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.enums.FdpRequirementEventType;
 import fk.retail.ip.requirement.internal.enums.OverrideKey;
@@ -60,7 +61,8 @@ public class RequirementService {
     private final D42Client d42Client;
     private final int PAGE_SIZE = 20;
     private final String BUCKET_NAME = "ip_requirements";
-    private final ApprovalEmailSender appovalEmailSender;
+    private final ApprovalEmailHelper appovalEmailHelper;
+    private final EmailConfiguration emailConfiguration;
 
     @Inject
     public RequirementService(RequirementRepository requirementRepository,
@@ -74,7 +76,8 @@ public class RequirementService {
                               Provider<TriggerRequirementCommand> triggerRequirementCommandProvider,
                               PushToProcCommand pushToProcCommand,
                               D42Client d42Client,
-                              ApprovalEmailSender appovalEmailSender
+                              ApprovalEmailHelper appovalEmailHelper,
+                              EmailConfiguration emailConfiguration
                               ) {
 
         this.requirementRepository = requirementRepository;
@@ -89,7 +92,8 @@ public class RequirementService {
         this.fdpRequirementIngestor = fdpRequirementIngestor;
         this.requirementEventLogRepository = requirementEventLogRepository;
         this.d42Client = d42Client;
-        this.appovalEmailSender = appovalEmailSender;
+        this.appovalEmailHelper = appovalEmailHelper;
+        this.emailConfiguration = emailConfiguration;
     }
 
     public StreamingOutput downloadRequirement(DownloadRequirementRequest downloadRequirementRequest) {
@@ -215,7 +219,8 @@ public class RequirementService {
                         requirementApprovalStateTransitionRepository,
                         fdpRequirementIngestor,
                         requirementEventLogRepository,
-                        appovalEmailSender
+                        appovalEmailHelper,
+                        emailConfiguration
                 )
         );
         log.info("State changed for {} number of requirements", requirements.size());

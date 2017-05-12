@@ -7,6 +7,7 @@ import fk.sp.common.extensions.jpa.SimpleJpaGenericRepository;
 import javax.inject.Provider;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import java.util.List;
 
 /**
  * Created by agarwal.vaibhav on 09/05/17.
@@ -18,15 +19,16 @@ public class JPAEmailDetailsRepository extends SimpleJpaGenericRepository<EmailD
         super(entityManagerProvider);
     }
 
-    @Override
     public EmailDetails getEmailDetails(String stencilId, String groupName) {
         TypedQuery<EmailDetails> query = getEntityManager().createNamedQuery("findEmailDetailsByStencilId", EmailDetails.class);
         query.setParameter("stencilId", stencilId);
         query.setParameter("groupName", groupName);
-        if(query.getResultList().isEmpty()) {
+        List<EmailDetails> emailDetailsList;
+        emailDetailsList = query.getResultList();
+        if (emailDetailsList.isEmpty()) {
             return null;
-        }else {
-            EmailDetails emailDetails = query.getSingleResult();
+        } else {
+            EmailDetails emailDetails = emailDetailsList.get(0);
             return emailDetails;
         }
 

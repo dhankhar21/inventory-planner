@@ -1,14 +1,14 @@
 package fk.retail.ip.requirement.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import fk.retail.ip.email.internal.command.ApprovalEmailSender;
 import fk.retail.ip.email.internal.enums.ApprovalEmailParams;
 import fk.retail.ip.email.internal.enums.EmailParams;
+import fk.retail.ip.requirement.config.EmailConfiguration;
 import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.command.EventLogger;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
 import fk.retail.ip.requirement.internal.command.PayloadCreationHelper;
+import fk.retail.ip.requirement.internal.command.emailHelper.ApprovalEmailHelper;
 import fk.retail.ip.requirement.internal.entities.Requirement;
 import fk.retail.ip.requirement.internal.entities.RequirementApprovalTransition;
 import fk.retail.ip.requirement.internal.enums.EventType;
@@ -20,13 +20,10 @@ import fk.retail.ip.requirement.internal.repository.RequirementEventLogRepositor
 import fk.retail.ip.requirement.internal.repository.RequirementRepository;
 import fk.retail.ip.requirement.model.RequirementChangeMap;
 import fk.retail.ip.requirement.model.RequirementChangeRequest;
-import fk.retail.ip.requirement.model.StencilConfigModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -79,20 +76,23 @@ public class ApprovalService<E> {
         private RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository;
         private FdpRequirementIngestorImpl fdpRequirementIngestor;
         private RequirementEventLogRepository requirementEventLogRepository;
-        private ApprovalEmailSender appovalEmailSender;
+        private ApprovalEmailHelper appovalEmailHelper;
+        private EmailConfiguration emailConfiguration;
 
         public CopyOnStateChangeAction(
                 RequirementRepository requirementRepository,
                 RequirementApprovalTransitionRepository requirementApprovalStateTransitionRepository,
                 FdpRequirementIngestorImpl fdpRequirementIngestor,
                 RequirementEventLogRepository requirementEventLogRepository,
-                ApprovalEmailSender appovalEmailSender
+                ApprovalEmailHelper appovalEmailHelper,
+                EmailConfiguration emailConfiguration
         ) {
             this.requirementRepository = requirementRepository;
             this.requirementApprovalStateTransitionRepository = requirementApprovalStateTransitionRepository;
             this.fdpRequirementIngestor = fdpRequirementIngestor;
             this.requirementEventLogRepository = requirementEventLogRepository;
-            this.appovalEmailSender = appovalEmailSender;
+            this.appovalEmailHelper = appovalEmailHelper;
+            this.emailConfiguration = emailConfiguration;
         }
 
 
@@ -162,12 +162,7 @@ public class ApprovalService<E> {
                 requirementChangeRequest.setRequirementChangeMaps(requirementChangeMaps);
                 requirementChangeRequestList.add(requirementChangeRequest);
             }
-            String stencilId = getStencilId(fromState, forward);
-            if (stencilId != null && !stencilId.isEmpty()) {
-                appovalEmailSender.send(createStencilParamsMap(groupName, userId, userId, getCurrentTimestamp(), fromState), stencilId);
-            } else {
-                log.debug("stencil not found for the above request");
-            }
+            appovalEmailHelper.send(createStencilParamsMap(groupName, userId, getCurrentTimestamp(), fromState), fromState, forward);
             log.info("Updating Projections tables for Requirements");
             requirementRepository.updateProjections(requirements, groupToTargetState);
             //Push APPROVE and CANCEL events to fdp
@@ -190,54 +185,26 @@ public class ApprovalService<E> {
         private Map<EmailParams, String> createStencilParamsMap(
                 String groupName,
                 String userName,
-                String user,
                 String timestamp,
                 String state) {
             Map<EmailParams, String> paramsMap = new HashMap<>();
             paramsMap.put(ApprovalEmailParams.USERNAME, userName);
-            paramsMap.put(ApprovalEmailParams.USER, user);
             paramsMap.put(ApprovalEmailParams.GROUPNAME, groupName);
             paramsMap.put(ApprovalEmailParams.TIMESTAMP, timestamp);
             paramsMap.put(ApprovalEmailParams.LINK, getUrl(groupName, state));
             return paramsMap;
         }
 
-        private String getStencilId(String state, boolean forward) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-                //Get the stencil id by parsing the stencil configuration file
-                File file = new File(getClass().getClassLoader().getResource(Constants.STENCIL_CONFIGURATION_FILE).getFile());
-                StencilConfigModel stencilStateMapping = objectMapper.
-                        readValue(file, StencilConfigModel.class);
-
-                String stencilId;
-                if (forward) {
-                    stencilId = stencilStateMapping.getStateStencilMapping().get(state).get("forward");
-                } else {
-                    stencilId = stencilStateMapping.getStateStencilMapping().get(state).get("backward");
-                }
-                return stencilId;
-
-            } catch(IOException ex) {
-                log.info("unable to parse ");
-                return null;
-            }
-        }
-
-        private String getCurrentTimestamp() {
-            return new Date().toString();
-        }
-
         private String getUrl(String groupName, String state) {
             try {
                 String requirementLink;
-                String path = Constants.IP_CONSOLE_PATH + state;
+                String path = emailConfiguration.getPath() + state;
                 URI uri = new URIBuilder()
                         .setScheme("http")
-                        .setHost(Constants.ELB_HOST)
+                        .setHost(emailConfiguration.getHost())
                         .setPath(path)
                         .setParameter("current_state", state)
-                        .setParameter("group", groupName)
+                        .setParameter("filter[group]", groupName)
                         .setParameter("commit", "search")
                         .build();
 
@@ -249,5 +216,9 @@ public class ApprovalService<E> {
                 return "";
             }
         }
+        private String getCurrentTimestamp() {
+            return new Date().toString();
+        }
+
     }
 }

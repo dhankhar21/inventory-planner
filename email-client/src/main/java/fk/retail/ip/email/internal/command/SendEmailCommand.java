@@ -37,13 +37,13 @@ public class SendEmailCommand extends BaseEmailCommand {
                 .header("x-api-key", connektConfiguration.getApiKey())
                 .post(Entity.json(json));
 
-        if (response.getStatus() != 202) {
+        if (response.getStatus() != Response.Status.ACCEPTED.getStatusCode()) {
             log.info("error sending email");
         }
         return null;
     }
 
-    public SendEmailCommand setConnektPayload(ConnektPayload payload) {
+    public SendEmailCommand withConnektPayload(ConnektPayload payload) {
         this.connektPayload = payload;
         return this;
     }

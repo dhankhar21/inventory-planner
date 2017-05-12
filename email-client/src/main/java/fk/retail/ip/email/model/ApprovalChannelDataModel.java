@@ -7,7 +7,6 @@ import lombok.Data;
  */
 @Data
 public class ApprovalChannelDataModel extends ChannelDataModel{
-    String user;
     String groupName;
     String userName;
     String timestamp;

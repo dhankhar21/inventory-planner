@@ -9,7 +9,6 @@ import javax.persistence.*;
  */
 @Data
 @Entity
-@Table(name="email_details")
 public class EmailDetails {
 
     @Id

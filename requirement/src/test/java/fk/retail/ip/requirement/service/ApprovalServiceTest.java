@@ -1,9 +1,10 @@
 package fk.retail.ip.requirement.service;
 
-import fk.retail.ip.email.internal.command.ApprovalEmailSender;
+import fk.retail.ip.requirement.config.EmailConfiguration;
 import fk.retail.ip.requirement.config.TestDbModule;
 import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.command.FdpRequirementIngestorImpl;
+import fk.retail.ip.requirement.internal.command.emailHelper.ApprovalEmailHelper;
 import fk.retail.ip.requirement.internal.entities.*;
 import fk.retail.ip.requirement.internal.enums.EventType;
 import fk.retail.ip.requirement.internal.enums.OverrideKey;
@@ -52,10 +53,13 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
     private ArgumentCaptor<Requirement> captor;
 
     @Mock
-    private ApprovalEmailSender appovalEmailSender;
+    private ApprovalEmailHelper approvalEmailHelper;
 
     @Captor
     private ArgumentCaptor<List<RequirementEventLog>> argumentCaptor;
+
+    @Mock
+    private EmailConfiguration emailConfiguration;
 
 
     @Test(expected = IllegalStateException.class)
@@ -63,7 +67,7 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
         String fromState = "proposed";
         Requirement requirement = createRequirement("verified", true);
         Function<Requirement, String> getter = Requirement::getState;
-        approvalService.changeState(Arrays.asList(requirement), fromState, "userId", true, getter, "", new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor, requirementEventLogRepository, appovalEmailSender));
+        approvalService.changeState(Arrays.asList(requirement), fromState, "userId", true, getter, "", new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor, requirementEventLogRepository, approvalEmailHelper, emailConfiguration));
 
     }
 
@@ -78,7 +82,7 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
         Mockito.when(requirementApprovalStateTransitionRepository.getApprovalTransition(Mockito.anyString(), Mockito.eq(true))).thenReturn(Arrays.asList(requirementApprovalTransition));
         Mockito.when(requirementRepository.find(Arrays.asList("fsn1"), true)).thenReturn(Arrays.asList(requirement));
         Mockito.doNothing().when(requirementRepository).updateProjections(Mockito.anyList(), Mockito.anyMap());
-        approvalService.changeState(Arrays.asList(requirement), fromState, "userId", true, getter, "", new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor, requirementEventLogRepository, appovalEmailSender));
+        approvalService.changeState(Arrays.asList(requirement), fromState, "userId", true, getter, "", new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor, requirementEventLogRepository, approvalEmailHelper, emailConfiguration));
         Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
         Mockito.verify(requirementRepository).persist(captor.capture());
         Assert.assertEquals(toState,captor.getValue().getState());
@@ -105,7 +109,7 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
         Mockito.when(requirementApprovalStateTransitionRepository.getApprovalTransition(Mockito.anyString(), Mockito.eq(true))).thenReturn(Arrays.asList(requirementApprovalTransition));
         Mockito.when(requirementRepository.find(Arrays.asList("fsn1"), true)).thenReturn(Arrays.asList(requirement));
         Mockito.doNothing().when(requirementRepository).updateProjections(Mockito.anyList(), Mockito.anyMap());
-        approvalService.changeState(Arrays.asList(requirement), fromState, "userId", true, getter, "", new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor, requirementEventLogRepository, appovalEmailSender));
+        approvalService.changeState(Arrays.asList(requirement), fromState, "userId", true, getter, "", new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor, requirementEventLogRepository, approvalEmailHelper, emailConfiguration));
         Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
         Mockito.verify(requirementRepository).persist(captor.capture());
         Assert.assertEquals(toState,captor.getValue().getState());
@@ -133,7 +137,7 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
         Mockito.doNothing().when(requirementRepository).updateProjections(Mockito.anyList(), Mockito.anyMap());
         List<Requirement> allEnabledRequirements = Arrays.asList(createRequirement(toState, false));
         Mockito.when(requirementRepository.find(Arrays.asList("fsn1"), true)).thenReturn(allEnabledRequirements);
-        approvalService.changeState(Arrays.asList(requirement), fromState, "userId", true, getter, "", new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor, requirementEventLogRepository, appovalEmailSender));
+        approvalService.changeState(Arrays.asList(requirement), fromState, "userId", true, getter, "", new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor, requirementEventLogRepository, approvalEmailHelper, emailConfiguration));
         Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
         Assert.assertEquals(false, requirement.isCurrent());
 
@@ -158,7 +162,7 @@ public class ApprovalServiceTest extends TransactionalJpaRepositoryTest {
         List<Requirement> allEnabledRequirements = Arrays.asList(createRequirement(toState, false));
         Mockito.doNothing().when(requirementRepository).updateProjections(Mockito.anyList(), Mockito.anyMap());
         Mockito.when(requirementRepository.find(Arrays.asList("fsn1"), true)).thenReturn(allEnabledRequirements);
-        approvalService.changeState(Arrays.asList(requirement), fromState, "userId", true, getter, "", new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor, requirementEventLogRepository, appovalEmailSender));
+        approvalService.changeState(Arrays.asList(requirement), fromState, "userId", true, getter, "", new ApprovalService.CopyOnStateChangeAction(requirementRepository, requirementApprovalStateTransitionRepository, fdpRequirementIngestor, requirementEventLogRepository, approvalEmailHelper, emailConfiguration));
         Mockito.verify(requirementEventLogRepository).persist(argumentCaptor.capture());
         Assert.assertEquals(false, requirement.isCurrent());
 
