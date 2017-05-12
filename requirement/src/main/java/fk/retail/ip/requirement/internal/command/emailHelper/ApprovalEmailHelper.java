@@ -96,7 +96,7 @@ public class ApprovalEmailHelper extends SendEmail {
             return stencilId;
 
         } catch(IOException ex) {
-            log.info(ex.getStackTrace().toString());
+            ex.printStackTrace();
             log.info("unable to parse ");
             return null;
         }
