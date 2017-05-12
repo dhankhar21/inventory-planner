@@ -97,7 +97,11 @@ public class ApprovalEmailHelper extends SendEmail {
 
         } catch(IOException ex) {
             ex.printStackTrace();
+            log.warn(ex.getMessage().toString());
+            log.warn(ex.getCause().getMessage());
+            log.warn(ex.getStackTrace().toString());
             log.info("unable to parse ");
+
             return null;
         }
     }
