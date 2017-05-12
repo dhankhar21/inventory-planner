@@ -37,6 +37,10 @@ public class ApprovalEmailHelper extends SendEmail {
 
         ConnektPayload connektPayload = new ConnektPayload();
         String stencilId = getStencilId(state, forward);
+        if (stencilId == null) {
+            log.info("no stencil found in the config file");
+            return;
+        }
         connektPayload.setStencilId(stencilId);
 
         ApprovalChannelDataModel approvalChannelDataModel = new ApprovalChannelDataModel();
@@ -92,6 +96,7 @@ public class ApprovalEmailHelper extends SendEmail {
             return stencilId;
 
         } catch(IOException ex) {
+            log.info(ex.getStackTrace().toString());
             log.info("unable to parse ");
             return null;
         }
