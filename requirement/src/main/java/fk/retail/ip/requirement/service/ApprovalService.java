@@ -46,8 +46,8 @@ public class ApprovalService<E> {
     private StencilConfigModel stencilConfigModel;
 
     @Inject
-    public ApprovalService(String approvalEmailConfigurations) {
-        approvalEmailConfigurations  = "/stencil-configurations.json";
+    public ApprovalService() {
+        String approvalEmailConfigurations  = "/stencil-configurations.json";
         try {
             InputStreamReader inputStreamReader = new InputStreamReader
                     (getClass().getResourceAsStream(approvalEmailConfigurations));

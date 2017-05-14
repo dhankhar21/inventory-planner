@@ -36,7 +36,5 @@ public class RequirementModule extends AbstractModule {
         bind(ProjectionRepository.class).to(ProjectionRepositoryImpl.class);
 
         bind(String.class).annotatedWith(Names.named("actionConfiguration")).toInstance("/requirement-state-actions.json");
-        bind(String.class).annotatedWith(Names.named("approvalEmailConfiguration")).
-                toInstance("/stencil-configurations.json");
     }
 }
