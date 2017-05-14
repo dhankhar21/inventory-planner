@@ -1,8 +1,11 @@
 package fk.retail.ip.requirement.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import fk.retail.ip.email.internal.enums.ApprovalEmailParams;
 import fk.retail.ip.email.internal.enums.EmailParams;
+import fk.retail.ip.email.model.StencilConfigModel;
 import fk.retail.ip.requirement.config.EmailConfiguration;
 import fk.retail.ip.requirement.internal.Constants;
 import fk.retail.ip.requirement.internal.command.EventLogger;
@@ -24,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -38,6 +43,21 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ApprovalService<E> {
 
+    private StencilConfigModel stencilConfigModel;
+
+    @Inject
+    public ApprovalService(String approvalEmailConfigurations) {
+        approvalEmailConfigurations  = "/stencil-configurations.json";
+        try {
+            InputStreamReader inputStreamReader = new InputStreamReader
+                    (getClass().getResourceAsStream(approvalEmailConfigurations));
+            ObjectMapper objectMapper = new ObjectMapper();
+            stencilConfigModel = objectMapper.readValue(inputStreamReader, StencilConfigModel.class);
+        } catch (IOException ex) {
+
+        }
+    }
+
     public void changeState(List<E> items,
                             String fromState,
                             String userId,
@@ -47,7 +67,7 @@ public class ApprovalService<E> {
                             StageChangeAction<E>... actionListeners) {
         validate(items, fromState, getter);
         for (StageChangeAction<E> consumer : actionListeners) {
-            consumer.execute(userId, fromState, forward, items, groupName);
+            consumer.execute(userId, fromState, forward, items, groupName, stencilConfigModel);
         }
     }
 
@@ -67,7 +87,8 @@ public class ApprovalService<E> {
                      String fromState,
                      boolean forward,
                      List<E> entity,
-                     String groupName);
+                     String groupName,
+                     StencilConfigModel stencilConfigModel);
     }
 
     public static class CopyOnStateChangeAction implements StageChangeAction<Requirement> {
@@ -97,7 +118,7 @@ public class ApprovalService<E> {
 
 
         @Override
-        public void execute(String userId, String fromState, boolean forward, List<Requirement> requirements, String groupName) {
+        public void execute(String userId, String fromState, boolean forward, List<Requirement> requirements, String groupName, StencilConfigModel stencilConfigModel) {
             Map<Long, String> groupToTargetState = getGroupToTargetStateMap(fromState, forward);
             log.info("Constructed map for group to Target state " + groupToTargetState);
             Map<String, String> requirementToTargetStateMap = getRequirementToTargetStateMap(groupToTargetState, requirements);
@@ -162,7 +183,7 @@ public class ApprovalService<E> {
                 requirementChangeRequest.setRequirementChangeMaps(requirementChangeMaps);
                 requirementChangeRequestList.add(requirementChangeRequest);
             }
-            appovalEmailHelper.send(createStencilParamsMap(groupName, userId, getCurrentTimestamp(), fromState), fromState, forward);
+            appovalEmailHelper.send(createStencilParamsMap(groupName, userId, getCurrentTimestamp(), fromState), fromState, forward, stencilConfigModel);
             log.info("Updating Projections tables for Requirements");
             requirementRepository.updateProjections(requirements, groupToTargetState);
             //Push APPROVE and CANCEL events to fdp
