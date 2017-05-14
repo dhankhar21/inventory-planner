@@ -15,8 +15,7 @@ public abstract class SendEmail {
     private EmailDetailsRepository emailDetailsRepository;
     protected ConnektClient connektClient;
 
-    public SendEmail(EmailDetailsRepository emailDetailsRepository,
-                     ConnektClient connektClient) {
+    public SendEmail(EmailDetailsRepository emailDetailsRepository, ConnektClient connektClient) {
         this.emailDetailsRepository = emailDetailsRepository;
         this.connektClient = connektClient;
     }

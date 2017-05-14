@@ -22,9 +22,7 @@ import java.util.Map;
 @Slf4j
 public class ApprovalEmailHelper extends SendEmail {
     @Inject
-    public ApprovalEmailHelper(ConnektClient connektClient,
-                               EmailDetailsRepository emailDetailsRepository
-    ) {
+    public ApprovalEmailHelper(ConnektClient connektClient, EmailDetailsRepository emailDetailsRepository) {
         super(emailDetailsRepository, connektClient);
     }
 
