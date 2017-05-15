@@ -2,7 +2,6 @@ package fk.retail.ip.requirement.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 import fk.retail.ip.email.internal.enums.ApprovalEmailParams;
 import fk.retail.ip.email.internal.enums.EmailParams;
 import fk.retail.ip.email.model.StencilConfigModel;
@@ -45,7 +44,6 @@ public class ApprovalService<E> {
 
     private StencilConfigModel stencilConfigModel;
 
-    @Inject
     public ApprovalService() {
         String approvalEmailConfigurations  = "/stencil-configurations.json";
         try {
