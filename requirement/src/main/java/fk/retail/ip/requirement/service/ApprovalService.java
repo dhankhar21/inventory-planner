@@ -54,7 +54,7 @@ public class ApprovalService<E> {
             ObjectMapper objectMapper = new ObjectMapper();
             stencilConfigModel = objectMapper.readValue(inputStreamReader, StencilConfigModel.class);
         } catch (IOException ex) {
-
+            log.debug("error in reading file", ex);
         }
     }
 

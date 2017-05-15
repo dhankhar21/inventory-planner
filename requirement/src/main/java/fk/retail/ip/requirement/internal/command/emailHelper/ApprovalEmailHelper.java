@@ -36,7 +36,7 @@ public class ApprovalEmailHelper extends SendEmail {
 
         ConnektPayload connektPayload = new ConnektPayload();
         String stencilId = getStencilId(state, forward, stencilConfigModel);
-        if (stencilId == null) {
+        if (stencilId == null || stencilId.isEmpty()) {
             log.info("no stencil found in the config file");
             return;
         }
@@ -87,5 +87,4 @@ public class ApprovalEmailHelper extends SendEmail {
         }
         return stencilId;
     }
-
 }
