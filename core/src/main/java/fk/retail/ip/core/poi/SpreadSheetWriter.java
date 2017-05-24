@@ -84,7 +84,7 @@ public class SpreadSheetWriter {
             }
         }
 
-        SXSSFWorkbook wb1 = new SXSSFWorkbook();
+        SXSSFWorkbook wb1 = new SXSSFWorkbook(100);
         Sheet sh = wb1.createSheet();
 
         Row headerRow = sh.createRow(0);
