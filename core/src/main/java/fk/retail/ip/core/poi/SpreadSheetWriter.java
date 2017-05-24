@@ -3,6 +3,7 @@ package fk.retail.ip.core.poi;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -66,51 +67,55 @@ public class SpreadSheetWriter {
 //        }
 
 
-        XSSFWorkbook wb = new XSSFWorkbook();
-        Sheet sh = wb.createSheet();
-
         List<String> headers = new ArrayList<>();
 
+        try (OPCPackage pkg = OPCPackage.open(tempFile.toFile())) {
+            XSSFWorkbook wb = new XSSFWorkbook(pkg);
+            Sheet sheet = wb.getSheetAt(0);
+            //sheet.protectSheet("uneditable");
 
-//        Row headerRow = sh.getRow(0);
-//        for (int c = 0; c < headerRow.getLastCellNum(); c++) {
-//            Cell cell = headerRow.getCell(c);
-//            if (cell == null) {
-//                continue;
-//            }
-//            headers.add(cell.getStringCellValue());
-//        }
-
-        // read csv and write to spreadsheet
-        for (int r = 0; r < 100000; r++) {
-          //  Map<String, Object> record = records.get(r);
-            Row row = sh.createRow(r + 1);
-            for (int c = 0; c < 15; c++) {
-//                if (headers.get(c).trim().isEmpty()) {
-//                    break;
-//                }
-                Object value = "static string";
-                Cell cell = row.getCell(c, Row.CREATE_NULL_AS_BLANK);
-                setCellValue(value, cell);
-              //  applyCellStyle(wb, cell, headers.get(c));
+            Row headerRow = sheet.getRow(0);
+            for (int c = 0; c < headerRow.getLastCellNum(); c++) {
+                Cell cell = headerRow.getCell(c);
+                if (cell == null) {
+                    continue;
+                }
+                headers.add(cell.getStringCellValue());
             }
-
-            log.info("Wrote the records to disk");
         }
 
-        wb.write(out);
+        SXSSFWorkbook wb1 = new SXSSFWorkbook();
+        Sheet sh = wb1.createSheet();
+
+        Row headerRow = sh.createRow(0);
+
+        for (int c = 0; c < headers.size(); c++) {
+            if (headers.get(c).trim().isEmpty()) {
+                break;
+            }
+            Cell cell = headerRow.getCell(c, Row.CREATE_NULL_AS_BLANK);
+            setCellValue(headers.get(c), cell);
+            applyCellStyle(wb1, cell, headers.get(c));
+        }
+
+
+        for (int r = 0; r < records.size(); r++) {
+            Map<String, Object> record = records.get(r);
+            Row row = sh.createRow(r + 1);
+            for (int c = 0; c < headers.size(); c++) {
+                if (headers.get(c).trim().isEmpty()) {
+                    break;
+                }
+                Object value = record.get(headers.get(c));
+                Cell cell = row.getCell(c, Row.CREATE_NULL_AS_BLANK);
+                setCellValue(value, cell);
+                applyCellStyle(wb1, cell, headers.get(c));
+            }
+        }
+
+        wb1.write(out);
         out.close();
-
-
-
-
-
-
-//        try (OPCPackage pkg = OPCPackage.open(tempFile.toFile())) {
-//            XSSFWorkbook wb = new XSSFWorkbook(pkg);
-//            Sheet sheet = wb.getSheetAt(0);
-//            //sheet.protectSheet("uneditable");
-//        }
+        wb1.dispose();
     }
 
 
