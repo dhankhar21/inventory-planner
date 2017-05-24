@@ -89,6 +89,7 @@ public class SpreadSheetWriter {
 
         Row headerRow = sh.createRow(0);
 
+        log.info("Memory {}", Runtime.getRuntime().freeMemory());
         for (int c = 0; c < headers.size(); c++) {
             if (headers.get(c).trim().isEmpty()) {
                 break;
@@ -96,7 +97,10 @@ public class SpreadSheetWriter {
             Cell cell = headerRow.getCell(c, Row.CREATE_NULL_AS_BLANK);
             setCellValue(headers.get(c), cell);
             applyCellStyle(wb1, cell, headers.get(c));
+            log.info("Writing to disk");
         }
+
+        log.info("Memory {}", Runtime.getRuntime().freeMemory());
 
 
         for (int r = 0; r < records.size(); r++) {
@@ -111,6 +115,7 @@ public class SpreadSheetWriter {
                 setCellValue(value, cell);
                 applyCellStyle(wb1, cell, headers.get(c));
             }
+            log.info("Memory {}", Runtime.getRuntime().freeMemory());
         }
 
         wb1.write(out);
