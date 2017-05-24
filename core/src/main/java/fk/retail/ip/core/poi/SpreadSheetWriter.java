@@ -113,7 +113,7 @@ public class SpreadSheetWriter {
                 Object value = record.get(headers.get(c));
                 Cell cell = row.getCell(c, Row.CREATE_NULL_AS_BLANK);
                 setCellValue(value, cell);
-                applyCellStyle(wb1, cell, headers.get(c));
+                //applyCellStyle(wb1, cell, headers.get(c));
             }
             log.info("Memory {}", Runtime.getRuntime().freeMemory());
         }
