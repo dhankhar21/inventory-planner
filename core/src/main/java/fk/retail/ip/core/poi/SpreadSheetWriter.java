@@ -116,8 +116,11 @@ public class SpreadSheetWriter {
                 //applyCellStyle(wb1, cell, headers.get(c));
             }
             log.info("Memory {}", Runtime.getRuntime().freeMemory());
-            wb1.write(out);
+
+            out.flush();
         }
+
+        wb1.write(out);
         out.close();
         wb1.dispose();
     }
